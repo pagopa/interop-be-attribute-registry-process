@@ -1,0 +1,95 @@
+{
+  "endpoints": [
+    {
+      "route": "getProducers",
+      "verb": "GET",
+      "roles": [
+        "admin",
+        "api",
+        "security"
+      ]
+    },
+    {
+      "route": "getConsumers",
+      "verb": "GET",
+      "roles": [
+        "admin",
+        "api",
+        "security"
+      ]
+    },
+    {
+      "route": "internalUpsertTenant",
+      "verb": "POST",
+      "roles": [
+        "internal"
+      ]
+    },
+    {
+      "route": "internalRevokeCertifiedAttribute",
+      "verb": "DELETE",
+      "roles": [
+        "internal"
+      ]
+    },
+    {
+      "route": "m2mUpsertTenant",
+      "verb": "POST",
+      "roles": [
+        "m2m"
+      ]
+    },
+    {
+      "route": "m2mDeleteAttribute",
+      "verb": "DELETE",
+      "roles": [
+        "m2m"
+      ]
+    },
+    {
+      "route": "selfcareUpsertTenant",
+      "verb": "POST",
+      "roles": [
+        "admin",
+        "security",
+        "api",
+        "internal"
+      ]
+    },
+    {
+      "route": "addDeclaredAttribute",
+      "verb": "POST",
+      "roles": [
+        "admin"
+      ]
+    },
+    {
+      "route": "revokeDeclaredAttribute",
+      "verb": "POST",
+      "roles": [
+        "admin"
+      ]
+    },
+    {
+      "route": "verifyVerifiedAttribute",
+      "verb": "POST",
+      "roles": [
+        "admin"
+      ]
+    },
+    {
+      "route": "revokeVerifiedAttribute",
+      "verb": "POST",
+      "roles": [
+        "admin"
+      ]
+    },
+    {
+      "route": "updateTenant",
+      "verb": "POST",
+      "roles": [
+        "admin"
+      ]
+    }
+  ]
+}

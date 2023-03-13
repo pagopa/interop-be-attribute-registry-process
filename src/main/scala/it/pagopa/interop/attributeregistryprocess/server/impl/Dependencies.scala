@@ -73,8 +73,6 @@ trait Dependencies {
     new AttributeApi(
       AttributeRegistryApiServiceImpl(
         attributeRegistryManagement(blockingEc),
-        tenantManagement(blockingEc),
-        agreementProcess(blockingEc),
         agreementManagement(blockingEc),
         catalogManagement(blockingEc),
         readModelService,
@@ -84,26 +82,6 @@ trait Dependencies {
       AttributeRegistryApiMarshallerImpl,
       jwtReader.OAuth2JWTValidatorAsContexts
     )
-
-  private def tenantManagementInvoker(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): TenantManagementInvoker =
-    TenantManagementInvoker(blockingEc)(actorSystem.classicSystem)
-
-  private final val tenantManagementApi: TenantManagementApi =
-    TenantManagementApi(ApplicationConfiguration.tenantManagementURL)
-
-  private final val tenantManagementAttributesApi: TenantManagementAttributesApi =
-    TenantManagementAttributesApi(ApplicationConfiguration.tenantManagementURL)
-
-  def tenantManagement(
-    blockingEc: ExecutionContextExecutor
-  )(implicit actorSystem: ActorSystem[_]): TenantManagementService =
-    TenantManagementServiceImpl(
-      tenantManagementInvoker(blockingEc),
-      tenantManagementApi,
-      tenantManagementAttributesApi
-    )(blockingEc)
 
   private final val agreementProcessApi: AgreementProcessApi =
     AgreementProcessApi(ApplicationConfiguration.agreementProcessURL)

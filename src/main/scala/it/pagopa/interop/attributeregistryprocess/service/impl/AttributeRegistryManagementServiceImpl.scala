@@ -98,11 +98,4 @@ final case class AttributeRegistryManagementServiceImpl(
       api.getBulkedAttributes(xCorrelationId = correlationId, ids = ids, xForwardedFor = ip)(BearerToken(bearerToken))
     invoker.invoke(request, s"Retrieving attributes in bulk by identifiers in (${ids.getOrElse("")})")
   }
-
-  override def loadCertifiedAttributes()(implicit contexts: Seq[(String, String)]): Future[Unit] = withHeaders {
-    (bearerToken, correlationId, ip) =>
-      val request: ApiRequest[Unit] =
-        api.loadCertifiedAttributes(xCorrelationId = correlationId, xForwardedFor = ip)(BearerToken(bearerToken))
-      invoker.invoke(request, s"Loading certified attributes from Party Registry")
-  }
 }

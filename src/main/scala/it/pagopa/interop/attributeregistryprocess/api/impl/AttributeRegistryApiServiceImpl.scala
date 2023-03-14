@@ -3,25 +3,21 @@ package it.pagopa.interop.attributeregistryprocess.api.impl
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import akka.http.scaladsl.server.Directives.onComplete
 import akka.http.scaladsl.server.Route
-import it.pagopa.interop.commons.utils.TypeConversions._
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
 import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, AttributesResponse, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
-import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt.{ADMIN_ROLE, API_ROLE, authorize}
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
-  agreementManagementService: AgreementManagementService,
-  catalogManagementService: CatalogManagementService,
-  readModelService: ReadModelService,
   uuidSupplier: UUIDSupplier,
   dateTimeSupplier: OffsetDateTimeSupplier
 )(implicit ec: ExecutionContext)
@@ -160,18 +156,4 @@ final case class AttributeRegistryApiServiceImpl(
       getBulkedAttributesResponse[AttributesResponse](operationLabel)(getBulkedAttributes200)
     }
   }
-
-  override def loadCertifiedAttributes()(implicit contexts: Seq[(String, String)]): Route =
-    authorize(ADMIN_ROLE, API_ROLE) {
-      val operationLabel: String = s"Loading certified attributes from Party Registry"
-      logger.info(operationLabel)
-
-      val result: Future[Unit] = for {
-        result <- attributeRegistryManagementService.loadCertifiedAttributes()
-      } yield result
-
-      onComplete(result) {
-        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes200)
-      }
-    }
 }

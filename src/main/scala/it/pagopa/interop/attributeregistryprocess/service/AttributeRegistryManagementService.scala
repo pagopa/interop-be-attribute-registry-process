@@ -22,5 +22,4 @@ trait AttributeRegistryManagementService {
   def getAttributes(search: Option[String])(implicit contexts: Seq[(String, String)]): Future[AttributesResponse]
 
   def getBulkedAttributes(ids: Option[String])(implicit contexts: Seq[(String, String)]): Future[AttributesResponse]
-  def loadCertifiedAttributes()(implicit contexts: Seq[(String, String)]): Future[Unit]
 }

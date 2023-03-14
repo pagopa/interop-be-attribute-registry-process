@@ -1,7 +1,20 @@
 package it.pagopa.interop.attributeregistryprocess.utils
 
 import cats.implicits._
+import it.pagopa.interop.agreementmanagement.client.model.{
+  Stamps,
+  Agreement => DependencyAgreement,
+  AgreementState => DependencyAgreementState,
+  VerifiedAttribute => DependencyVerifiedAttribute
+}
 import it.pagopa.interop.attributeregistrymanagement.client.model.{AttributeKind, Attribute => DependencyAttribute}
+import it.pagopa.interop.catalogmanagement.client.model.{
+  Attribute => CatalogAttribute,
+  AttributeValue => CatalogAttributeValue,
+  Attributes => CatalogAttributes,
+  EService => CatalogEService,
+  EServiceTechnology => CatalogEServiceTechnology
+}
 import it.pagopa.interop.tenantmanagement.client.model.{
   CertifiedTenantAttribute => DependencyCertifiedTenantAttribute,
   DeclaredTenantAttribute => DependencyDeclaredTenantAttribute,
@@ -13,36 +26,12 @@ import it.pagopa.interop.tenantmanagement.client.model.{
   VerificationRenewal => DependencyVerificationRenewal,
   VerifiedTenantAttribute => DependencyVerifiedTenantAttribute
 }
-import it.pagopa.interop.attributeregistryprocess.model._
-import it.pagopa.interop.agreementmanagement.client.model.{
-  Agreement => DependencyAgreement,
-  AgreementState => DependencyAgreementState,
-  VerifiedAttribute => DependencyVerifiedAttribute
-}
-import it.pagopa.interop.catalogmanagement.client.model.{
-  Attribute => CatalogAttribute,
-  AttributeValue => CatalogAttributeValue,
-  Attributes => CatalogAttributes,
-  EService => CatalogEService,
-  EServiceTechnology => CatalogEServiceTechnology
-}
 
 import java.time.{OffsetDateTime, ZoneOffset}
 import java.util.UUID
-import it.pagopa.interop.agreementmanagement.client.model.Stamps
 
 trait SpecData {
   final val timestamp = OffsetDateTime.of(2022, 12, 31, 11, 22, 33, 44, ZoneOffset.UTC)
-
-  val internalAttributeSeed: InternalAttributeSeed = InternalAttributeSeed("IPA", s"int-attribute-${UUID.randomUUID()}")
-  val m2mAttributeSeed: M2MAttributeSeed           = M2MAttributeSeed(s"m2m-attribute-${UUID.randomUUID()}")
-
-  val internalTenantSeed: InternalTenantSeed =
-    InternalTenantSeed(ExternalId("IPA", s"tenant-${UUID.randomUUID()}"), Seq(internalAttributeSeed), "test_name")
-  val m2mTenantSeed: M2MTenantSeed           =
-    M2MTenantSeed(ExternalId("IPA", s"tenant-${UUID.randomUUID()}"), Seq(m2mAttributeSeed), "test_name")
-  val selfcareTenantSeed: SelfcareTenantSeed =
-    SelfcareTenantSeed(ExternalId("IPA", s"tenant-${UUID.randomUUID()}"), UUID.randomUUID().toString, "test_name")
 
   val dependencyTenant: DependencyTenant = DependencyTenant(
     id = UUID.randomUUID(),
@@ -55,8 +44,6 @@ trait SpecData {
     mails = Nil,
     name = "test_name"
   )
-
-  val fakeTenantDelta: TenantDelta = TenantDelta(mails = Nil)
 
   val tenantVerifier: DependencyTenantVerifier = DependencyTenantVerifier(
     id = UUID.randomUUID(),

@@ -8,14 +8,7 @@ import akka.http.scaladsl.server.directives.SecurityDirectives
 import com.atlassian.oai.validator.report.ValidationReport
 import com.nimbusds.jose.proc.SecurityContext
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier
-import it.pagopa.interop.commons.cqrs.service.{MongoDbReadModelService, ReadModelService}
-import it.pagopa.interop.commons.jwt.service.JWTReader
-import it.pagopa.interop.commons.jwt.service.impl.{DefaultJWTReader, getClaimsVerifier}
-import it.pagopa.interop.commons.jwt.{JWTConfiguration, KID, PublicKeysHolder, SerializedKey}
-import it.pagopa.interop.commons.utils.TypeConversions._
-import it.pagopa.interop.commons.utils.errors.{Problem => CommonProblem}
-import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
-import it.pagopa.interop.commons.utils.{AkkaUtils, OpenapiUtils}
+import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistryprocess.api.impl.{
   AttributeRegistryApiMarshallerImpl,
   AttributeRegistryApiServiceImpl,
@@ -25,12 +18,18 @@ import it.pagopa.interop.attributeregistryprocess.api.impl.{
 import it.pagopa.interop.attributeregistryprocess.api.{AttributeApi, HealthApi}
 import it.pagopa.interop.attributeregistryprocess.common.system.ApplicationConfiguration
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers.serviceCode
-import it.pagopa.interop.attributeregistryprocess.service.impl._
 import it.pagopa.interop.attributeregistryprocess.service._
+import it.pagopa.interop.attributeregistryprocess.service.impl._
+import it.pagopa.interop.commons.jwt.service.JWTReader
+import it.pagopa.interop.commons.jwt.service.impl.{DefaultJWTReader, getClaimsVerifier}
+import it.pagopa.interop.commons.jwt.{JWTConfiguration, KID, PublicKeysHolder, SerializedKey}
+import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.TypeConversions._
+import it.pagopa.interop.commons.utils.errors.{Problem => CommonProblem}
+import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
+import it.pagopa.interop.commons.utils.{AkkaUtils, OpenapiUtils}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
-import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
-import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 
 trait Dependencies {
 
@@ -51,8 +50,6 @@ trait Dependencies {
     )
     .toFuture
 
-  val readModelService: ReadModelService = new MongoDbReadModelService(ApplicationConfiguration.readModelConfig)
-
   val validationExceptionToRoute: ValidationReport => Route = report => {
     val error =
       CommonProblem(StatusCodes.BadRequest, OpenapiUtils.errorFromRequestValidationReport(report), serviceCode, None)
@@ -71,56 +68,10 @@ trait Dependencies {
     ec: ExecutionContext
   ): AttributeApi =
     new AttributeApi(
-      AttributeRegistryApiServiceImpl(
-        attributeRegistryManagement(blockingEc),
-        agreementManagement(blockingEc),
-        catalogManagement(blockingEc),
-        readModelService,
-        uuidSupplier,
-        dateTimeSupplier
-      ),
+      AttributeRegistryApiServiceImpl(attributeRegistryManagement(blockingEc), uuidSupplier, dateTimeSupplier),
       AttributeRegistryApiMarshallerImpl,
       jwtReader.OAuth2JWTValidatorAsContexts
     )
-
-  private final val agreementProcessApi: AgreementProcessApi =
-    AgreementProcessApi(ApplicationConfiguration.agreementProcessURL)
-
-  private final val agreementManagementApi: AgreementManagementApi =
-    AgreementManagementApi(ApplicationConfiguration.agreementManagementURL)
-
-  private final val catalogManagementApi: CatalogManagementApi =
-    CatalogManagementApi(ApplicationConfiguration.catalogManagementURL)
-
-  private def agreementProcessInvoker(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): AgreementProcessInvoker =
-    AgreementProcessInvoker(blockingEc)(actorSystem.classicSystem)
-
-  def agreementProcess(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): AgreementProcessService =
-    AgreementProcessServiceImpl(agreementProcessInvoker(blockingEc), agreementProcessApi, blockingEc)
-
-  private def agreementManagementInvoker(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): AgreementManagementInvoker =
-    AgreementManagementInvoker(blockingEc)(actorSystem.classicSystem)
-
-  def agreementManagement(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): AgreementManagementService =
-    AgreementManagementServiceImpl(agreementManagementInvoker(blockingEc), agreementManagementApi)
-
-  private def catalogManagementInvoker(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): CatalogManagementInvoker =
-    CatalogManagementInvoker(blockingEc)(actorSystem.classicSystem)
-
-  def catalogManagement(blockingEc: ExecutionContextExecutor)(implicit
-    actorSystem: ActorSystem[_]
-  ): CatalogManagementService =
-    CatalogManagementServiceImpl(catalogManagementInvoker(blockingEc), catalogManagementApi)
 
   private def attributeRegistryManagementInvoker(blockingEc: ExecutionContextExecutor)(implicit
     actorSystem: ActorSystem[_]

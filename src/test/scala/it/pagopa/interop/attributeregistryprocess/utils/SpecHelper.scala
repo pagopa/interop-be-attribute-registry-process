@@ -2,7 +2,6 @@ package it.pagopa.interop.attributeregistryprocess.utils
 
 import it.pagopa.interop.attributeregistrymanagement.client.model.Attribute
 import it.pagopa.interop.attributeregistryprocess.service._
-import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.utils._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import org.scalamock.scalatest.MockFactory
@@ -31,7 +30,6 @@ trait SpecHelper extends MockFactory with SpecData {
 
   val mockAttributeRegistryManagement: AttributeRegistryManagementService = mock[AttributeRegistryManagementService]
 
-  val mockReadModel: ReadModelService              = mock[ReadModelService]
   val mockUuidSupplier: UUIDSupplier               = mock[UUIDSupplier]
   val mockDateTimeSupplier: OffsetDateTimeSupplier = mock[OffsetDateTimeSupplier]
 

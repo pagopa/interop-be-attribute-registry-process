@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, AttributesResponse, Problem}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Attributes, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.jwt.{ADMIN_ROLE, API_ROLE, authorize}
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
@@ -34,12 +34,13 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Creating attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = attributeRegistryManagementService.createAttribute(attributeSeed.toClient).map(_.toApi)
+    val result: Future[Attribute] =
+      attributeRegistryManagementService.createAttribute(attributeSeed.toClient).map(_.toApi)
 
     onComplete(result) {
       createAttributeResponse[Attribute](operationLabel) { res =>
         logger.info(s"Attribute created with id ${res.id}")
-        createAttribute201(res)
+        createAttribute200(res)
       }
     }
   }
@@ -108,7 +109,8 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Retrieving attribute $origin/$code"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = attributeRegistryManagementService.getAttributeByOriginAndCode(origin, code).map(_.toApi)
+    val result: Future[Attribute] =
+      attributeRegistryManagementService.getAttributeByOriginAndCode(origin, code).map(_.toApi)
 
     onComplete(result) {
       getAttributeByOriginAndCodeResponse[Attribute](operationLabel) { res =>
@@ -119,34 +121,34 @@ final case class AttributeRegistryApiServiceImpl(
 
   override def getAttributes(search: Option[String])(implicit
     contexts: Seq[(String, String)],
-    toEntityMarshallerAttributesResponse: ToEntityMarshaller[AttributesResponse],
+    toEntityMarshallerAttributesResponse: ToEntityMarshaller[Attributes],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
   ): Route = authorize(ADMIN_ROLE, API_ROLE) {
     val operationLabel: String = s"Retrieving attributes by search string ${search.getOrElse("")}"
     logger.info(operationLabel)
 
-    val result: Future[AttributesResponse] = for {
+    val result: Future[Attributes] = for {
       result <- attributeRegistryManagementService.getAttributes(search).map(_.attributes.map(_.toApi))
-    } yield AttributesResponse(attributes = result)
+    } yield Attributes(attributes = result)
 
     onComplete(result) {
-      getAttributesResponse[AttributesResponse](operationLabel)(getAttributes200)
+      getAttributesResponse[Attributes](operationLabel)(getAttributes200)
     }
   }
 
   override def getBulkedAttributes(ids: Option[String])(implicit
     contexts: Seq[(String, String)],
-    toEntityMarshallerAttributesResponse: ToEntityMarshaller[AttributesResponse]
+    toEntityMarshallerAttributesResponse: ToEntityMarshaller[Attributes]
   ): Route = authorize(ADMIN_ROLE, API_ROLE) {
     val operationLabel: String = s"Retrieving attributes in bulk by identifiers in (${ids.getOrElse("")})"
     logger.info(operationLabel)
 
-    val result: Future[AttributesResponse] = for {
+    val result: Future[Attributes] = for {
       result <- attributeRegistryManagementService.getBulkedAttributes(ids).map(_.attributes.map(_.toApi))
-    } yield AttributesResponse(attributes = result)
+    } yield Attributes(attributes = result)
 
     onComplete(result) {
-      getBulkedAttributesResponse[AttributesResponse](operationLabel)(getBulkedAttributes200)
+      getBulkedAttributesResponse[Attributes](operationLabel)(getBulkedAttributes200)
     }
   }
 }

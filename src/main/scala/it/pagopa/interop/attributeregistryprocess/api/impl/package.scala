@@ -10,9 +10,9 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
   implicit def problemErrorFormat: RootJsonFormat[ProblemError] = jsonFormat2(ProblemError)
   implicit def problemFormat: RootJsonFormat[Problem]           = jsonFormat6(Problem)
 
-  final val entityMarshallerProblem: ToEntityMarshaller[Problem]            = sprayJsonMarshaller[Problem]
-  implicit def attributeSeedFormat: RootJsonFormat[AttributeSeed]           = jsonFormat5(AttributeSeed)
-  implicit def attributeFormat: RootJsonFormat[Attribute]                   = jsonFormat7(Attribute)
-  implicit def attributesResponseFormat: RootJsonFormat[AttributesResponse] = jsonFormat1(AttributesResponse)
+  final val entityMarshallerProblem: ToEntityMarshaller[Problem]    = sprayJsonMarshaller[Problem]
+  implicit def attributeSeedFormat: RootJsonFormat[AttributeSeed]   = jsonFormat5(AttributeSeed)
+  implicit def attributeFormat: RootJsonFormat[Attribute]           = jsonFormat7(Attribute)
+  implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat1(Attributes)
 
 }

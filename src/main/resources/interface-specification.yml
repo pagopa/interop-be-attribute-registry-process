@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AttributesResponse'
+                $ref: '#/components/schemas/Attributes'
         '404':
           description: Attributes not found
           content:
@@ -102,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AttributesResponse'
+                $ref: '#/components/schemas/Attributes'
       description: Returns the list of attributes indicated in the request
       parameters:
         - in: query
@@ -140,6 +140,21 @@ paths:
         required: true
         description: name of the attribute to lookup.
   '/attributes/origin/{origin}/code/{code}':
+    parameters:
+      - $ref: '#/components/parameters/CorrelationIdHeader'
+      - $ref: '#/components/parameters/IpAddress'
+      - schema:
+          type: string
+        name: origin
+        in: path
+        required: true
+        description: 'origin of the attribute to lookup (e.g.: IPA).'
+      - schema:
+          type: string
+        name: code
+        in: path
+        required: true
+        description: 'code of the attribute to lookup (e.g.: unique identifier of IPA).'
     get:
       summary: Get Attribute by origin and code
       tags:
@@ -159,21 +174,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
       operationId: getAttributeByOriginAndCode
       description: 'returns the attribute in the registry corresponding to origin and code, if any.'
-    parameters:
-      - $ref: '#/components/parameters/CorrelationIdHeader'
-      - $ref: '#/components/parameters/IpAddress'
-      - schema:
-          type: string
-        name: origin
-        in: path
-        required: true
-        description: 'origin of the attribute to lookup (e.g.: IPA).'
-      - schema:
-          type: string
-        name: code
-        in: path
-        required: true
-        description: 'code of the attribute to lookup (e.g.: unique identifier of IPA).'
   '/attributes/{attributeId}':
     parameters:
       - $ref: '#/components/parameters/CorrelationIdHeader'
@@ -309,8 +309,6 @@ components:
     Attribute:
       title: Attribute
       type: object
-      tags:
-        - attribute
       description: Models the attribute registry entry as payload response
       properties:
         id:
@@ -348,8 +346,6 @@ components:
     AttributeSeed:
       title: AttributeSeed
       type: object
-      tags:
-        - attribute
       description: Models the attribute registry entry as payload response
       properties:
         code:

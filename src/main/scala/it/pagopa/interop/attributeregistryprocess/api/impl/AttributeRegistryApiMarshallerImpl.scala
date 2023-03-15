@@ -4,7 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiMarshaller
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, AttributesResponse, Problem}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Attributes, Problem}
 import spray.json.DefaultJsonProtocol
 
 object AttributeRegistryApiMarshallerImpl
@@ -14,8 +14,8 @@ object AttributeRegistryApiMarshallerImpl
   override implicit def fromEntityUnmarshallerAttributeSeed: FromEntityUnmarshaller[AttributeSeed] =
     sprayJsonUnmarshaller[AttributeSeed]
 
-  override implicit def toEntityMarshallerAttributesResponse: ToEntityMarshaller[AttributesResponse] =
-    sprayJsonMarshaller[AttributesResponse]
+  override implicit def toEntityMarshallerAttributes: ToEntityMarshaller[Attributes] =
+    sprayJsonMarshaller[Attributes]
 
   override implicit def toEntityMarshallerAttribute: ToEntityMarshaller[Attribute] = sprayJsonMarshaller[Attribute]
 

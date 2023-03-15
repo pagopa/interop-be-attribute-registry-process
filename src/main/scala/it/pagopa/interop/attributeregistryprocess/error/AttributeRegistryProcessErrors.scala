@@ -2,8 +2,6 @@ package it.pagopa.interop.attributeregistryprocess.error
 
 import it.pagopa.interop.commons.utils.errors.ComponentError
 
-import java.util.UUID
-
 object AttributeRegistryProcessErrors {
 
   final case class RegistryAttributeNotFound(attributeIdentifier: String)

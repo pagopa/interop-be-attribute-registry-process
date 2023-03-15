@@ -34,9 +34,7 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Creating attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = for {
-      createdAttribute <- attributeRegistryManagementService.createAttribute(attributeSeed.toClient).map(_.toApi)
-    } yield createdAttribute
+    val result: Future[Attribute] = attributeRegistryManagementService.createAttribute(attributeSeed.toClient).map(_.toApi)
 
     onComplete(result) {
       createAttributeResponse[Attribute](operationLabel) { res =>
@@ -78,7 +76,6 @@ final case class AttributeRegistryApiServiceImpl(
 
     onComplete(result) {
       getAttributeByIdResponse[Attribute](operationLabel) { res =>
-        logger.info(s"Retrieved attribute with id ${res.id}")
         getAttributeById200(res)
       }
     }
@@ -98,7 +95,6 @@ final case class AttributeRegistryApiServiceImpl(
 
     onComplete(result) {
       getAttributeByNameResponse[Attribute](operationLabel) { res =>
-        logger.info(s"Retrieved attribute with id${res.id}")
         getAttributeByName200(res)
       }
     }
@@ -112,13 +108,10 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Retrieving attribute $origin/$code"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = for {
-      result <- attributeRegistryManagementService.getAttributeByOriginAndCode(origin, code).map(_.toApi)
-    } yield result
+    val result: Future[Attribute] = attributeRegistryManagementService.getAttributeByOriginAndCode(origin, code).map(_.toApi)
 
     onComplete(result) {
       getAttributeByOriginAndCodeResponse[Attribute](operationLabel) { res =>
-        logger.info(s"Retrieved attribute with id${res.id}")
         getAttributeByOriginAndCode200(res)
       }
     }

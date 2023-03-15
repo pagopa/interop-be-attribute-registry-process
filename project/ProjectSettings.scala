@@ -10,8 +10,6 @@ import scala.util.Try
 object ProjectSettings {
 
   implicit class ProjectFrom(project: Project) {
-    private def contractFilter(name: String): Boolean = name endsWith "ContractSpec"
-    private def unitFilter(name: String): Boolean     = !contractFilter(name)
 
     // TODO since Git 2.22 we could use the following command instead: git branch --show-current
     private val currentBranch: Option[String] = Try(
@@ -33,21 +31,6 @@ object ProjectSettings {
       "interfaceVersion" -> interfaceVersion
     )
 
-    def enableContractTest: Project = {
-      lazy val ContractTest = config("contract") extend (Test)
-
-      lazy val testSettings: Seq[Def.Setting[_]] =
-        inConfig(ContractTest)(Defaults.testTasks) ++ Seq(
-          Test / testOptions               := Seq(Tests.Filter(unitFilter)),
-          ContractTest / testOptions       := Seq(Tests.Filter(contractFilter)),
-          Test / parallelExecution         := false,
-          ContractTest / parallelExecution := false
-        )
-
-      project
-        .configs(ContractTest)
-        .settings(testSettings)
-    }
 
     def setupBuildInfo: Project = {
       project

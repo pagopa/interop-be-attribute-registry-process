@@ -37,7 +37,7 @@ paths:
         - attribute
       operationId: createAttribute
       responses:
-        '201':
+        '200':
           description: Attribute created
           content:
             application/json:
@@ -309,7 +309,7 @@ components:
     Attribute:
       title: Attribute
       type: object
-      x-tags:
+      tags:
         - attribute
       description: Models the attribute registry entry as payload response
       properties:
@@ -348,7 +348,7 @@ components:
     AttributeSeed:
       title: AttributeSeed
       type: object
-      x-tags:
+      tags:
         - attribute
       description: Models the attribute registry entry as payload response
       properties:
@@ -380,7 +380,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/AttributeSeed'
-    AttributesResponse:
+    Attributes:
       title: AttributesResponse
       type: object
       properties:

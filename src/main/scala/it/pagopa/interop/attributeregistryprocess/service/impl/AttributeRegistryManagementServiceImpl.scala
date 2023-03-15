@@ -43,7 +43,7 @@ final case class AttributeRegistryManagementServiceImpl(
       api.createAttribute(xCorrelationId = correlationId, attributeSeed = attributeSeed, xForwardedFor = ip)(
         BearerToken(bearerToken)
       )
-    invoker.invoke(request, s"Attribute with name ${attributeSeed.name} created")
+    invoker.invoke(request, s"Attribute creation with name ${attributeSeed.name}")
   }
 
   override def deleteAttributeById(attributeId: UUID)(implicit contexts: Seq[(String, String)]): Future[Unit] =

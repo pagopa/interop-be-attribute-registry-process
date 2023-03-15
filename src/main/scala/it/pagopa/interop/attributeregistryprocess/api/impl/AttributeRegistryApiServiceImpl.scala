@@ -9,7 +9,7 @@ import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistrySer
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
 import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Attributes, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
-import it.pagopa.interop.commons.jwt.{ADMIN_ROLE, API_ROLE, authorize}
+import it.pagopa.interop.commons.jwt.{ADMIN_ROLE, API_ROLE, INTERNAL_ROLE, M2M_ROLE, SECURITY_ROLE, authorize}
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
@@ -30,7 +30,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Creating attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
@@ -66,7 +66,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Retrieving attribute with ID $attributeId"
     logger.info(operationLabel)
 
@@ -86,7 +86,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Retrieving attribute with name $name"
     logger.info(operationLabel)
 
@@ -105,7 +105,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, INTERNAL_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Retrieving attribute $origin/$code"
     logger.info(operationLabel)
 
@@ -119,27 +119,10 @@ final case class AttributeRegistryApiServiceImpl(
     }
   }
 
-  override def getAttributes(search: Option[String])(implicit
-    contexts: Seq[(String, String)],
-    toEntityMarshallerAttributesResponse: ToEntityMarshaller[Attributes],
-    toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
-    val operationLabel: String = s"Retrieving attributes by search string ${search.getOrElse("")}"
-    logger.info(operationLabel)
-
-    val result: Future[Attributes] = for {
-      result <- attributeRegistryManagementService.getAttributes(search).map(_.attributes.map(_.toApi))
-    } yield Attributes(attributes = result)
-
-    onComplete(result) {
-      getAttributesResponse[Attributes](operationLabel)(getAttributes200)
-    }
-  }
-
   override def getBulkedAttributes(ids: Option[String])(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributesResponse: ToEntityMarshaller[Attributes]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Retrieving attributes in bulk by identifiers in (${ids.getOrElse("")})"
     logger.info(operationLabel)
 
@@ -151,4 +134,20 @@ final case class AttributeRegistryApiServiceImpl(
       getBulkedAttributesResponse[Attributes](operationLabel)(getBulkedAttributes200)
     }
   }
+
+  override def getAttributes(
+    search: Option[String]
+  )(implicit contexts: Seq[(String, String)], toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]): Route =
+    authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+      val operationLabel: String = s"Retrieving attributes by search string ${search.getOrElse("")}"
+      logger.info(operationLabel)
+
+      val result: Future[Attributes] = for {
+        result <- attributeRegistryManagementService.getAttributes(search).map(_.attributes.map(_.toApi))
+      } yield Attributes(attributes = result)
+
+      onComplete(result) {
+        getAttributesResponse[Attributes](operationLabel)(getAttributes200)
+      }
+    }
 }

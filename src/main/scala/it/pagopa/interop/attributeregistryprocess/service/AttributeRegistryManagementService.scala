@@ -11,8 +11,6 @@ trait AttributeRegistryManagementService {
 
   def createAttribute(attributeSeed: AttributeSeed)(implicit contexts: Seq[(String, String)]): Future[Attribute]
 
-  def deleteAttributeById(attributeId: UUID)(implicit contexts: Seq[(String, String)]): Future[Unit]
-
   def getAttributeByName(name: String)(implicit contexts: Seq[(String, String)]): Future[Attribute]
 
   def getAttributeByOriginAndCode(origin: String, code: String)(implicit

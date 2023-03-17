@@ -45,9 +45,6 @@ object FakeDependencies {
         )
       )
 
-    override def deleteAttributeById(attributeId: UUID)(implicit contexts: Seq[(String, String)]): Future[Unit] =
-      Future.successful(())
-
     override def getAttributeByName(name: String)(implicit contexts: Seq[(String, String)]): Future[Attribute] =
       Future.successful(
         Attribute(

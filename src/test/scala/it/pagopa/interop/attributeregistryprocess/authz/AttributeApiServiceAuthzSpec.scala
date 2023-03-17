@@ -53,9 +53,4 @@ class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
       { implicit c: Seq[(String, String)] => service.getAttributeByOriginAndCode("fakeSeed", "code") }
     )
   }
-
-  test("method authorization must succeed for deleteAttributeById") {
-    val endpoint = AuthorizedRoutes.endpoints("deleteAttributeById")
-    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.deleteAttributeById("fakeSeed") })
-  }
 }

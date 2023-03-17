@@ -46,18 +46,6 @@ final case class AttributeRegistryManagementServiceImpl(
     invoker.invoke(request, s"Attribute creation with name ${attributeSeed.name}")
   }
 
-  override def deleteAttributeById(attributeId: UUID)(implicit contexts: Seq[(String, String)]): Future[Unit] =
-    withHeaders { (bearerToken, correlationId, ip) =>
-      val request: ApiRequest[Unit] =
-        api.deleteAttributeById(xCorrelationId = correlationId, attributeId = attributeId, xForwardedFor = ip)(
-          BearerToken(bearerToken)
-        )
-      invoker.invoke(request, s"Deleting attribute with ID $attributeId").recoverWith {
-        case err: ApiError[_] if err.code == 404 =>
-          Future.failed(RegistryAttributeNotFound(attributeId.toString))
-      }
-    }
-
   override def getAttributeByName(name: String)(implicit contexts: Seq[(String, String)]): Future[Attribute] =
     withHeaders { (bearerToken, correlationId, ip) =>
       val request: ApiRequest[Attribute] =

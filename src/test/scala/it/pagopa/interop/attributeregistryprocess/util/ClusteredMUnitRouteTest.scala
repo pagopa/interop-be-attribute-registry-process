@@ -24,7 +24,7 @@ trait ClusteredMUnitRouteTest extends FunSuite with RouteTest with TestFramework
   override def failTest(msg: String): Nothing = fail(msg)
   def testExceptionHandler: ExceptionHandler  = ExceptionHandler { case e => throw e }
 
-  lazy val testKit: ActorTestKit = ActorTestKit(ConfigFactory.load())
+  lazy val testKit: ActorTestKit                     = ActorTestKit(ConfigFactory.load())
   implicit def testTypedSystem: ActorSystem[Nothing] = testKit.system
 
   def validateAuthorization(endpoint: Endpoint, r: Seq[(String, String)] => Route)(implicit loc: Location): Unit = {

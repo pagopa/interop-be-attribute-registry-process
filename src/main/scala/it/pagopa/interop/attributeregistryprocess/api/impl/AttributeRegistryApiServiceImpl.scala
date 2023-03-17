@@ -45,23 +45,6 @@ final case class AttributeRegistryApiServiceImpl(
     }
   }
 
-  override def deleteAttributeById(
-    attributeId: String
-  )(implicit contexts: Seq[(String, String)], toEntityMarshallerProblem: ToEntityMarshaller[Problem]): Route =
-    authorize(ADMIN_ROLE, API_ROLE) {
-      val operationLabel: String = s"Deleting attribute with ID $attributeId"
-      logger.info(operationLabel)
-
-      val result: Future[Unit] = for {
-        attributeUUID <- attributeId.toFutureUUID
-        result        <- attributeRegistryManagementService.deleteAttributeById(attributeUUID)
-      } yield result
-
-      onComplete(result) {
-        deleteAttributeResponse[Unit](operationLabel)(_ => deleteAttributeById204)
-      }
-    }
-
   override def getAttributeById(attributeId: String)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],

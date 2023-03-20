@@ -1,11 +1,6 @@
 package it.pagopa.interop.attributeregistryprocess.util
 
-import it.pagopa.interop.attributeregistrymanagement.client.model.{
-  Attribute,
-  AttributeKind,
-  AttributeSeed,
-  AttributesResponse
-}
+import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.service.AttributeRegistryManagementService
 
 import java.time.OffsetDateTime
@@ -69,62 +64,6 @@ object FakeDependencies {
           origin = Some("IPA"),
           name = "AttributeX",
           creationTime = OffsetDateTime.now()
-        )
-      )
-
-    override def getAttributes(
-      search: Option[String]
-    )(implicit contexts: Seq[(String, String)]): Future[AttributesResponse] =
-      Future.successful(
-        AttributesResponse(attributes =
-          Seq(
-            Attribute(
-              id = UUID.randomUUID(),
-              code = Some(UUID.randomUUID().toString),
-              kind = AttributeKind.CERTIFIED,
-              description = "Attribute x",
-              origin = Some("IPA"),
-              name = "AttributeX",
-              creationTime = OffsetDateTime.now()
-            ),
-            Attribute(
-              id = UUID.randomUUID(),
-              code = Some(UUID.randomUUID().toString),
-              kind = AttributeKind.CERTIFIED,
-              description = "Attribute y",
-              origin = Some("IPA"),
-              name = "AttributeY",
-              creationTime = OffsetDateTime.now()
-            )
-          )
-        )
-      )
-
-    override def getBulkedAttributes(
-      ids: Option[String]
-    )(implicit contexts: Seq[(String, String)]): Future[AttributesResponse] =
-      Future.successful(
-        AttributesResponse(attributes =
-          Seq(
-            Attribute(
-              id = UUID.randomUUID(),
-              code = Some(UUID.randomUUID().toString),
-              kind = AttributeKind.CERTIFIED,
-              description = "Attribute x",
-              origin = Some("IPA"),
-              name = "AttributeX",
-              creationTime = OffsetDateTime.now()
-            ),
-            Attribute(
-              id = UUID.randomUUID(),
-              code = Some(UUID.randomUUID().toString),
-              kind = AttributeKind.CERTIFIED,
-              description = "Attribute y",
-              origin = Some("IPA"),
-              name = "AttributeY",
-              creationTime = OffsetDateTime.now()
-            )
-          )
         )
       )
   }

@@ -2,18 +2,18 @@ package it.pagopa.interop.attributeregistryprocess.service.impl
 
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiError, ApiRequest, BearerToken}
-import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeSeed, AttributesResponse}
-import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
-import it.pagopa.interop.commons.utils.withHeaders
+import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.RegistryAttributeNotFound
 import it.pagopa.interop.attributeregistryprocess.service.{
   AttributeRegistryManagementApi,
   AttributeRegistryManagementInvoker,
   AttributeRegistryManagementService
 }
+import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.withHeaders
 
-import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
+import scala.concurrent.{ExecutionContext, Future}
 
 final case class AttributeRegistryManagementServiceImpl(
   invoker: AttributeRegistryManagementInvoker,
@@ -69,21 +69,5 @@ final case class AttributeRegistryManagementServiceImpl(
       case err: ApiError[_] if err.code == 404 =>
         Future.failed(RegistryAttributeNotFound(origin + '/' + code))
     }
-  }
-
-  override def getAttributes(search: Option[String])(implicit
-    contexts: Seq[(String, String)]
-  ): Future[AttributesResponse] = withHeaders { (bearerToken, correlationId, ip) =>
-    val request: ApiRequest[AttributesResponse] =
-      api.getAttributes(xCorrelationId = correlationId, search = search, xForwardedFor = ip)(BearerToken(bearerToken))
-    invoker.invoke(request, s"Retrieving attributes by search string ${search.getOrElse("")}")
-  }
-
-  override def getBulkedAttributes(ids: Option[String])(implicit
-    contexts: Seq[(String, String)]
-  ): Future[AttributesResponse] = withHeaders { (bearerToken, correlationId, ip) =>
-    val request: ApiRequest[AttributesResponse] =
-      api.getBulkedAttributes(xCorrelationId = correlationId, ids = ids, xForwardedFor = ip)(BearerToken(bearerToken))
-    invoker.invoke(request, s"Retrieving attributes in bulk by identifiers in (${ids.getOrElse("")})")
   }
 }

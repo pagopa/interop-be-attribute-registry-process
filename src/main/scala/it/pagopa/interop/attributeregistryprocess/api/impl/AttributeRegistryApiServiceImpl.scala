@@ -7,9 +7,9 @@ import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Attributes, Problem}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
-import it.pagopa.interop.commons.jwt.{ADMIN_ROLE, API_ROLE, INTERNAL_ROLE, M2M_ROLE, SECURITY_ROLE, authorize}
+import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
@@ -101,20 +101,4 @@ final case class AttributeRegistryApiServiceImpl(
       }
     }
   }
-
-  override def getAttributes(
-    search: Option[String]
-  )(implicit contexts: Seq[(String, String)], toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]): Route =
-    authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
-      val operationLabel: String = s"Retrieving attributes by search string ${search.getOrElse("")}"
-      logger.info(operationLabel)
-
-      val result: Future[Attributes] = for {
-        result <- attributeRegistryManagementService.getAttributes(search).map(_.attributes.map(_.toApi))
-      } yield Attributes(attributes = result)
-
-      onComplete(result) {
-        getAttributesResponse[Attributes](operationLabel)(getAttributes200)
-      }
-    }
 }

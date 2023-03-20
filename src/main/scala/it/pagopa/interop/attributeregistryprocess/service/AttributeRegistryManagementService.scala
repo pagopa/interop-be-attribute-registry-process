@@ -1,9 +1,9 @@
 package it.pagopa.interop.attributeregistryprocess.service
 
-import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeSeed, AttributesResponse}
+import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeSeed}
 
-import scala.concurrent.Future
 import java.util.UUID
+import scala.concurrent.Future
 
 trait AttributeRegistryManagementService {
 
@@ -16,8 +16,4 @@ trait AttributeRegistryManagementService {
   def getAttributeByOriginAndCode(origin: String, code: String)(implicit
     contexts: Seq[(String, String)]
   ): Future[Attribute]
-
-  def getAttributes(search: Option[String])(implicit contexts: Seq[(String, String)]): Future[AttributesResponse]
-
-  def getBulkedAttributes(ids: Option[String])(implicit contexts: Seq[(String, String)]): Future[AttributesResponse]
 }

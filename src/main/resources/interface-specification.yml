@@ -63,24 +63,6 @@ paths:
             schema:
               $ref: '#/components/schemas/AttributeSeed'
         description: Contains the attribute data to save.
-    get:
-      summary: 'returns the list of attributes available on the registry'
-      tags:
-        - attribute
-      operationId: getAttributes
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-      responses:
-        '200':
-          description: array of currently available attributes
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Attributes'
-      description: Returns the list of currently available attributes
   '/attributes/name/{name}':
     get:
       summary: Get Attribute by name

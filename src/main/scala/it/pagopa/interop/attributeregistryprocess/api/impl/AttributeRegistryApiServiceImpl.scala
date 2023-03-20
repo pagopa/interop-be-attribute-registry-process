@@ -102,22 +102,6 @@ final case class AttributeRegistryApiServiceImpl(
     }
   }
 
-  override def getBulkedAttributes(ids: Option[String])(implicit
-    contexts: Seq[(String, String)],
-    toEntityMarshallerAttributesResponse: ToEntityMarshaller[Attributes]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
-    val operationLabel: String = s"Retrieving attributes in bulk by identifiers in (${ids.getOrElse("")})"
-    logger.info(operationLabel)
-
-    val result: Future[Attributes] = for {
-      result <- attributeRegistryManagementService.getBulkedAttributes(ids).map(_.attributes.map(_.toApi))
-    } yield Attributes(attributes = result)
-
-    onComplete(result) {
-      getBulkedAttributesResponse[Attributes](operationLabel)(getBulkedAttributes200)
-    }
-  }
-
   override def getAttributes(
     search: Option[String]
   )(implicit contexts: Seq[(String, String)], toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]): Route =

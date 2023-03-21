@@ -28,6 +28,9 @@ import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.errors.{Problem => CommonProblem}
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import it.pagopa.interop.commons.utils.{AkkaUtils, OpenapiUtils}
+import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
+import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
+import it.pagopa.interop.partyregistryproxy.client.api.{CategoryApi, InstitutionApi}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -63,12 +66,28 @@ trait Dependencies {
     loggingEnabled = false
   )
 
+  private def partyProcessService(
+    blockingEc: ExecutionContextExecutor
+  )(implicit actorSystem: ActorSystem[_]): PartyRegistryService = {
+    implicit val classic = actorSystem.classicSystem
+    PartyRegistryServiceImpl(
+      PartyProxyInvoker(blockingEc),
+      CategoryApi(ApplicationConfiguration.partyProxyUrl),
+      InstitutionApi(ApplicationConfiguration.partyProxyUrl)
+    )
+  }
+
   def attributeRegistryApi(jwtReader: JWTReader, blockingEc: ExecutionContextExecutor)(implicit
     actorSystem: ActorSystem[_],
     ec: ExecutionContext
   ): AttributeApi =
     new AttributeApi(
-      AttributeRegistryApiServiceImpl(attributeRegistryManagement(blockingEc), uuidSupplier, dateTimeSupplier),
+      AttributeRegistryApiServiceImpl(
+        attributeRegistryManagement(blockingEc),
+        uuidSupplier,
+        dateTimeSupplier,
+        partyProcessService(blockingEc)
+      ),
       AttributeRegistryApiMarshallerImpl,
       jwtReader.OAuth2JWTValidatorAsContexts
     )

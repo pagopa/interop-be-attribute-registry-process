@@ -11,4 +11,5 @@ object ApplicationConfiguration {
 
   val attributeRegistryManagementURL: String =
     config.getString("attribute-registry-process.services.attribute-registry-management")
+  val partyProxyUrl: String                  = config.getString("services.party-proxy")
 }

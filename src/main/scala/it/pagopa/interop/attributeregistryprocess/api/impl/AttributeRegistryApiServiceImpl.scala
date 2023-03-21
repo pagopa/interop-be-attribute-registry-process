@@ -7,10 +7,11 @@ import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeSeed, Problem}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.AkkaUtils.getFutureBearer
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
@@ -19,7 +20,8 @@ import scala.concurrent.{ExecutionContext, Future}
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
   uuidSupplier: UUIDSupplier,
-  dateTimeSupplier: OffsetDateTimeSupplier
+  dateTimeSupplier: OffsetDateTimeSupplier,
+  partyRegistryService: PartyRegistryService
 )(implicit ec: ExecutionContext)
     extends AttributeApiService {
 
@@ -101,4 +103,40 @@ final case class AttributeRegistryApiServiceImpl(
       }
     }
   }
+
+  override def loadCertifiedAttributes()(implicit contexts: Seq[(String, String)]): Route =
+    authorize(INTERNAL_ROLE) {
+      val operationLabel: String = s"Loading certified attributes from Party Registry"
+      logger.info(operationLabel)
+
+      val result: Future[Unit] = for {
+        bearer     <- getFutureBearer(contexts)
+        categories <- partyRegistryService.getCategories(bearer)
+        attributeSeedsCategories   = categories.items.map(c =>
+          AttributeSeed(
+            code = Option(c.code),
+            kind = AttributeKind.CERTIFIED,
+            description = c.name, // passing the name since no description exists at party-registry-proxy
+            origin = Option(c.origin),
+            name = c.name
+          )
+        )
+        institutions <- partyRegistryService.getInstitutions(bearer)
+        attributeSeedsInstitutions = institutions.items.map(i =>
+          AttributeSeed(
+            code = Option(i.originId),
+            kind = AttributeKind.CERTIFIED,
+            description = i.description,
+            origin = Option(i.origin),
+            name = i.description
+          )
+        )
+
+        _ <- addNewAttributes(attributeSeedsCategories ++ attributeSeedsInstitutions)
+      } yield ()
+
+      onComplete(result) {
+        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes200)
+      }
+    }
 }

@@ -1,0 +1,42 @@
+{
+  "endpoints": [
+    {
+      "verb": "POST",
+      "roles": [
+        "admin",
+        "api",
+        "m2m"
+      ],
+      "route": "createAttribute"
+    },
+    {
+      "verb": "GET",
+      "roles": [
+        "admin",
+        "api",
+        "security",
+        "m2m"
+      ],
+      "route": "getAttributeById"
+    },
+    {
+      "verb": "GET",
+      "roles": [
+        "admin",
+        "api",
+        "security",
+        "m2m"
+      ],
+      "route": "getAttributeByName"
+    },
+    {
+      "verb": "GET",
+      "roles": [
+        "admin",
+        "internal",
+        "m2m"
+      ],
+      "route": "getAttributeByOriginAndCode"
+    }
+  ]
+}

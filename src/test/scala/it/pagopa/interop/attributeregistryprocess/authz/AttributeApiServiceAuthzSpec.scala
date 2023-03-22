@@ -5,9 +5,11 @@ import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiS
 import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.util.FakeDependencies.{
   FakeAttributeRegistryManagement,
-  FakePartyProcessService
+  FakePartyProcessService,
+  FakeReadModelService
 }
 import it.pagopa.interop.attributeregistryprocess.util.{AuthorizedRoutes, ClusteredMUnitRouteTest}
+import it.pagopa.interop.commons.cqrs.service.ReadModelService
 
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -15,12 +17,14 @@ import java.util.UUID
 class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
   val fakeAttributeRegistryManagement: FakeAttributeRegistryManagement = FakeAttributeRegistryManagement()
   val fakePartyProcessService: FakePartyProcessService                 = FakePartyProcessService()
+  val fakeReadModel: ReadModelService                                  = new FakeReadModelService
 
   val service: AttributeRegistryApiServiceImpl = AttributeRegistryApiServiceImpl(
     fakeAttributeRegistryManagement,
     () => UUID.randomUUID(),
     () => OffsetDateTime.now(),
-    fakePartyProcessService
+    fakePartyProcessService,
+    fakeReadModel
   )
 
   test("method authorization must succeed for createAttribute") {

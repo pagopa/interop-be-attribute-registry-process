@@ -27,6 +27,8 @@ object Dependencies {
     lazy val namespace                         = "it.pagopa"
     lazy val attributeRegistryManagementClient =
       namespace %% "interop-be-attribute-registry-management-client" % attributeRegistryManagementVersion
+    lazy val attributeRegistryManagementModels =
+      namespace %% "interop-be-attribute-registry-management-models" % attributeRegistryManagementVersion
     lazy val partyProxyClient =
       namespace %% "interop-be-party-registry-proxy-client" % partyProxyVersion
     lazy val commonsUtils = namespace %% "interop-commons-utils" % commonsVersion
@@ -91,6 +93,7 @@ object Dependencies {
       logback.classic                          % Compile,
       mustache.mustache                        % Compile,
       pagopa.attributeRegistryManagementClient % Compile,
+      pagopa.attributeRegistryManagementModels % Compile,
       pagopa.commonsUtils                      % Compile,
       pagopa.commonsCqrs                       % Compile,
       pagopa.partyProxyClient                  % Compile,

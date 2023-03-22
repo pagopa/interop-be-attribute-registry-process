@@ -1,6 +1,7 @@
 package it.pagopa.interop.attributeregistryprocess.api.types
 
 import it.pagopa.interop.attributeregistrymanagement.client.{model => AttributeRegistryManagementDependency}
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => AttributeModel}
 import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed}
 
 object AttributeRegistryServiceTypes {
@@ -46,5 +47,40 @@ object AttributeRegistryServiceTypes {
         origin = attributeSeed.origin,
         name = attributeSeed.name
       )
+  }
+
+  implicit class ManagementAttributeSeedConverter(
+    private val attributeSeed: AttributeRegistryManagementDependency.AttributeSeed
+  ) extends AnyVal {
+
+    def toApi: AttributeSeed =
+      AttributeSeed(
+        code = attributeSeed.code,
+        kind = attributeSeed.kind.toApi,
+        description = attributeSeed.description,
+        origin = attributeSeed.origin,
+        name = attributeSeed.name
+      )
+  }
+
+  implicit class PersistentAttributeConverter(private val pa: AttributeModel.PersistentAttribute) extends AnyVal {
+    def toApi: Attribute = Attribute(
+      id = pa.id,
+      code = pa.code,
+      kind = pa.kind.toApi,
+      description = pa.description,
+      origin = pa.origin,
+      name = pa.name,
+      creationTime = pa.creationTime
+    )
+  }
+
+  implicit class PersistentAttributeKindConverter(private val kind: AttributeModel.PersistentAttributeKind)
+      extends AnyVal {
+    def toApi: AttributeKind = kind match {
+      case AttributeModel.Certified => AttributeKind.CERTIFIED
+      case AttributeModel.Declared  => AttributeKind.DECLARED
+      case AttributeModel.Verified  => AttributeKind.VERIFIED
+    }
   }
 }

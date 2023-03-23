@@ -140,7 +140,7 @@ final case class AttributeRegistryApiServiceImpl(
       } yield ()
 
       onComplete(result) {
-        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes200)
+        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes204)
       }
     }
 
@@ -156,7 +156,7 @@ final case class AttributeRegistryApiServiceImpl(
 
     // calculating the delta of attributes
     def delta(attrs: List[Attribute]): DeltaAttributes =
-      attributeSeed.foldLeft[DeltaAttributes](DeltaAttributes(Set.empty, Set.empty))((delta, seed) =>
+      attributesSeeds.foldLeft[DeltaAttributes](DeltaAttributes(Set.empty, Set.empty))((delta, seed) =>
         attrs
           .find(persisted => seed.name.equalsIgnoreCase(persisted.name))
           .fold(delta.addSeed(seed))(delta.addAttribute)

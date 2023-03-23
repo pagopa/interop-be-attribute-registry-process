@@ -2,7 +2,6 @@ package it.pagopa.interop.attributeregistryprocess.api
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
-import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute._
 import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.commons.utils.SprayCommonFormats._
 import spray.json._

@@ -16,21 +16,4 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
   implicit def attributeFormat: RootJsonFormat[Attribute]           = jsonFormat7(Attribute)
   implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat1(Attributes)
 
-  implicit val persistentAttributeKindFormat: RootJsonFormat[PersistentAttributeKind] =
-    new RootJsonFormat[PersistentAttributeKind] {
-      override def read(json: JsValue): PersistentAttributeKind = json match {
-        case JsString("Certified") => Certified
-        case JsString("Declared")  => Declared
-        case JsString("Verified")  => Verified
-        case other => deserializationError(s"Unable to deserialize json as a PersistentAttributeKind: $other")
-      }
-
-      override def write(obj: PersistentAttributeKind): JsValue = obj match {
-        case Certified => JsString("Certified")
-        case Declared  => JsString("Declared")
-        case Verified  => JsString("Verified")
-      }
-    }
-
-  implicit val persistentAttributeFormat: RootJsonFormat[PersistentAttribute] = jsonFormat7(PersistentAttribute.apply)
 }

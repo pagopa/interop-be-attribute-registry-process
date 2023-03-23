@@ -39,7 +39,7 @@
       "route": "getAttributeByOriginAndCode"
     },
     {
-      "verb": "GET",
+      "verb": "POST",
       "roles": [
         "internal"
       ],

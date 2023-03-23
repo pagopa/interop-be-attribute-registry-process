@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives.onComplete
 import akka.http.scaladsl.server.Route
 import com.mongodb.client.model.Filters
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats.paFormat
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
@@ -146,34 +147,29 @@ final case class AttributeRegistryApiServiceImpl(
 
   private def addNewAttributes(
     attributesSeeds: Seq[AttributeSeed]
-  )(implicit contexts: Seq[(String, String)]): Future[Set[Attribute]] = {
-
-    case class DeltaAttributes(attributes: Set[Attribute], seeds: Set[AttributeSeed]) {
-      def addAttribute(attr: Attribute): DeltaAttributes = copy(attributes = attributes + attr)
-
-      def addSeed(seed: AttributeSeed): DeltaAttributes = copy(seeds = seeds + seed)
-    }
+  )(implicit contexts: Seq[(String, String)]): Future[Unit] = {
 
     // calculating the delta of attributes
-    def delta(attrs: List[Attribute]): DeltaAttributes =
-      attributesSeeds.foldLeft[DeltaAttributes](DeltaAttributes(Set.empty, Set.empty))((delta, seed) =>
+    def delta(attrs: Seq[PersistentAttribute]): Set[AttributeSeed] =
+      attributesSeeds.foldLeft[Set[AttributeSeed]](Set.empty)((delta, seed) =>
         attrs
-          .find(persisted => seed.name.equalsIgnoreCase(persisted.name))
-          .fold(delta.addSeed(seed))(delta.addAttribute)
+          .find(persisted => {
+            seed.origin.contains(persisted.origin.getOrElse("")) && seed.code.contains(persisted.code.getOrElse(""))
+          })
+          .fold(delta + seed)(_ => Set.empty)
       )
 
-    // create all new attributes
-    for {
-      attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
-      deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)
-      newlyCreatedAttributes <- Future.traverse(deltaAttributes.seeds)(attributeSeed =>
+    def getAndProcessAttributes(offset: Int, limit: Int): Future[Seq[PersistentAttribute]] = for {
+      attributesFromRM <- readModelService.find[PersistentAttribute]("attributes", Filters.empty(), offset, limit)
+      _                <- Future.traverse(delta(attributesFromRM))(attributeSeed => // create all new attributes
         attributeRegistryManagementService.createAttribute(attributeSeed.toClient)
       )
-    } yield deltaAttributes.attributes ++ newlyCreatedAttributes.map(_.toApi)
+    } yield attributesFromRM
 
+    getAndProcess(50)(getAndProcessAttributes).flatMap(_ => Future.unit)
   }
 
-  private def getAll[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
+  private def getAndProcess[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
     def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
       get(offset, limit).flatMap(xs =>
         if (xs.size < limit) Future.successful(xs ++ acc)

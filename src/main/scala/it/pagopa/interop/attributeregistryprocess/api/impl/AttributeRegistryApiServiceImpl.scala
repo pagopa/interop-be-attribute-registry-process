@@ -144,8 +144,8 @@ final case class AttributeRegistryApiServiceImpl(
       }
     }
 
-  def addNewAttributes(
-    attributeSeed: Seq[AttributeSeed]
+  private def addNewAttributes(
+    attributesSeeds: Seq[AttributeSeed]
   )(implicit contexts: Seq[(String, String)]): Future[Set[Attribute]] = {
 
     case class DeltaAttributes(attributes: Set[Attribute], seeds: Set[AttributeSeed]) {
@@ -162,7 +162,7 @@ final case class AttributeRegistryApiServiceImpl(
           .fold(delta.addSeed(seed))(delta.addAttribute)
       )
 
-    // for all the not existing attributes, execute the command to persist them through event sourcing
+    // create all new attributes
     for {
       attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
       deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)

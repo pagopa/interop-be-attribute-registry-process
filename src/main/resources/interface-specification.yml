@@ -166,10 +166,10 @@ paths:
       tags:
         - attribute
       responses:
-        '200':
+        '204':
           description: Attributes loaded
       operationId: loadCertifiedAttributes
-      description: 'Loads certified attributes on this registry.'
+      description: 'Loads certified attributes on the registry.'
   /status:
     get:
       tags:

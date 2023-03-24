@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives.onComplete
 import akka.http.scaladsl.server.Route
 import com.mongodb.client.model.Filters
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats.paFormat
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
@@ -115,8 +116,10 @@ final case class AttributeRegistryApiServiceImpl(
 
       val result: Future[Unit] = for {
         bearer     <- getFutureBearer(contexts)
-        categories <- partyRegistryService.getCategories(bearer)
-        attributeSeedsCategories   = categories.items.map(c =>
+        categories <- getAll(50)((page, limit) =>
+          partyRegistryService.getCategories(bearer, Some(page), Some(limit)).map(_.items)
+        )
+        attributeSeedsCategories   = categories.map(c =>
           AttributeSeed(
             code = Option(c.code),
             kind = AttributeKind.CERTIFIED,
@@ -125,8 +128,9 @@ final case class AttributeRegistryApiServiceImpl(
             name = c.name
           )
         )
-        institutions <- partyRegistryService.getInstitutions(bearer)
-        attributeSeedsInstitutions = institutions.items.map(i =>
+        institutions <- getAll(50)((page, limit) =>
+          partyRegistryService.getInstitutions(bearer, Some(page), Some(limit)).map(_.items))
+        attributeSeedsInstitutions = institutions.map(i =>
           AttributeSeed(
             code = Option(i.originId),
             kind = AttributeKind.CERTIFIED,
@@ -140,7 +144,7 @@ final case class AttributeRegistryApiServiceImpl(
       } yield ()
 
       onComplete(result) {
-        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes200)
+        loadCertifiedAttributesResponse[Unit](operationLabel)(_ => loadCertifiedAttributes204)
       }
     }
 
@@ -148,28 +152,22 @@ final case class AttributeRegistryApiServiceImpl(
     attributesSeeds: Seq[AttributeSeed]
   )(implicit contexts: Seq[(String, String)]): Future[Set[Attribute]] = {
 
-    case class DeltaAttributes(attributes: Set[Attribute], seeds: Set[AttributeSeed]) {
-      def addAttribute(attr: Attribute): DeltaAttributes = copy(attributes = attributes + attr)
-
-      def addSeed(seed: AttributeSeed): DeltaAttributes = copy(seeds = seeds + seed)
-    }
-
     // calculating the delta of attributes
-    def delta(attrs: List[Attribute]): DeltaAttributes =
-      attributeSeed.foldLeft[DeltaAttributes](DeltaAttributes(Set.empty, Set.empty))((delta, seed) =>
+    def delta(attrs: List[Attribute]): Set[AttributeSeed] =
+      attributesSeeds.foldLeft[Set[AttributeSeed]](Set.empty)((attributesDelta, seed) =>
         attrs
-          .find(persisted => seed.name.equalsIgnoreCase(persisted.name))
-          .fold(delta.addSeed(seed))(delta.addAttribute)
+          .find(persisted => seed.origin == persisted.origin && seed.code == persisted.code)
+          .fold(attributesDelta + seed)(_ => Set.empty)
       )
 
     // create all new attributes
     for {
       attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
       deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)
-      newlyCreatedAttributes <- Future.traverse(deltaAttributes.seeds)(attributeSeed =>
+      newlyCreatedAttributes <- Future.traverse(deltaAttributes)(attributeSeed =>
         attributeRegistryManagementService.createAttribute(attributeSeed.toClient)
       )
-    } yield deltaAttributes.attributes ++ newlyCreatedAttributes.map(_.toApi)
+    } yield newlyCreatedAttributes.map(_.toApi)
 
   }
 

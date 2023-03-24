@@ -20,19 +20,32 @@ final case class PartyRegistryServiceImpl(
   implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  override def getCategories(bearerToken: String)(implicit contexts: Seq[(String, String)]): Future[Categories] =
+  override def getCategories(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+    contexts: Seq[(String, String)]
+  ): Future[Categories] =
     withHeaders { (bearerToken, correlationId, ip) =>
       val request: ApiRequest[Categories] =
-        categoryApi.getCategories(origin = None, xCorrelationId = correlationId, xForwardedFor = ip)(
-          BearerToken(bearerToken)
-        )
+        categoryApi.getCategories(
+          origin = None,
+          xCorrelationId = correlationId,
+          xForwardedFor = ip,
+          page = page,
+          limit = limit
+        )(BearerToken(bearerToken))
       invoker.invoke(request, "Retrieving categories")
     }
 
-  override def getInstitutions(bearerToken: String)(implicit contexts: Seq[(String, String)]): Future[Institutions] =
+  override def getInstitutions(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+    contexts: Seq[(String, String)]
+  ): Future[Institutions] =
     withHeaders { (bearerToken, correlationId, ip) =>
       val request: ApiRequest[Institutions] =
-        institutionApi.searchInstitutions(xCorrelationId = correlationId, xForwardedFor = ip)(BearerToken(bearerToken))
+        institutionApi.searchInstitutions(
+          xCorrelationId = correlationId,
+          xForwardedFor = ip,
+          page = page,
+          limit = limit
+        )(BearerToken(bearerToken))
       invoker.invoke(request, "Retrieving Institutions")
     }
 }

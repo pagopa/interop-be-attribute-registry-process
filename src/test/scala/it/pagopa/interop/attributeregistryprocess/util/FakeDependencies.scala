@@ -73,10 +73,14 @@ object FakeDependencies {
   }
 
   case class FakePartyProcessService() extends PartyRegistryService {
-    override def getCategories(bearerToken: String)(implicit contexts: Seq[(String, String)]): Future[Categories] =
+    override def getCategories(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+      contexts: Seq[(String, String)]
+    ): Future[Categories] =
       Future.successful(Categories(Seq(Category("YADA", "Proxied", "test", "IPA")), 1))
 
-    override def getInstitutions(bearerToken: String)(implicit contexts: Seq[(String, String)]): Future[Institutions] =
+    override def getInstitutions(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+      contexts: Seq[(String, String)]
+    ): Future[Institutions] =
       Future.successful(
         Institutions(
           Seq(

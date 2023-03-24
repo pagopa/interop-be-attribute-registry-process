@@ -129,7 +129,8 @@ final case class AttributeRegistryApiServiceImpl(
           )
         )
         institutions <- getAll(50)((page, limit) =>
-          partyRegistryService.getInstitutions(bearer, Some(page), Some(limit)).map(_.items))
+          partyRegistryService.getInstitutions(bearer, Some(page), Some(limit)).map(_.items)
+        )
         attributeSeedsInstitutions = institutions.map(i =>
           AttributeSeed(
             code = Option(i.originId),

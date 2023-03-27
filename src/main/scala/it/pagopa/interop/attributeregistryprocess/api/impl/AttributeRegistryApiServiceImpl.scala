@@ -15,7 +15,6 @@ import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
-import it.pagopa.interop.commons.utils.AkkaUtils.getFutureBearer
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
@@ -115,9 +114,8 @@ final case class AttributeRegistryApiServiceImpl(
       logger.info(operationLabel)
 
       val result: Future[Unit] = for {
-        bearer     <- getFutureBearer(contexts)
         categories <- getAll(50)((page, limit) =>
-          partyRegistryService.getCategories(bearer, Some(page), Some(limit)).map(_.items)
+          partyRegistryService.getCategories(Some(page), Some(limit)).map(_.items)
         )
         attributeSeedsCategories   = categories.map(c =>
           AttributeSeed(
@@ -129,7 +127,7 @@ final case class AttributeRegistryApiServiceImpl(
           )
         )
         institutions <- getAll(50)((page, limit) =>
-          partyRegistryService.getInstitutions(bearer, Some(page), Some(limit)).map(_.items)
+          partyRegistryService.getInstitutions(Some(page), Some(limit)).map(_.items)
         )
         attributeSeedsInstitutions = institutions.map(i =>
           AttributeSeed(

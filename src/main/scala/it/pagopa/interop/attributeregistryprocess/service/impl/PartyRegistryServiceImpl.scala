@@ -20,7 +20,7 @@ final case class PartyRegistryServiceImpl(
   implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  override def getCategories(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+  override def getCategories(page: Option[Int] = None, limit: Option[Int] = None)(implicit
     contexts: Seq[(String, String)]
   ): Future[Categories] =
     withHeaders { (bearerToken, correlationId, ip) =>
@@ -35,7 +35,7 @@ final case class PartyRegistryServiceImpl(
       invoker.invoke(request, "Retrieving categories")
     }
 
-  override def getInstitutions(bearerToken: String, page: Option[Int] = None, limit: Option[Int] = None)(implicit
+  override def getInstitutions(page: Option[Int] = None, limit: Option[Int] = None)(implicit
     contexts: Seq[(String, String)]
   ): Future[Institutions] =
     withHeaders { (bearerToken, correlationId, ip) =>

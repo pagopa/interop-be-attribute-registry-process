@@ -158,7 +158,7 @@ final case class AttributeRegistryApiServiceImpl(
       attributesSeeds.foldLeft[Set[AttributeSeed]](Set.empty)((attributesDelta, seed) =>
         attrs
           .find(persisted => seed.origin == persisted.origin && seed.code == persisted.code)
-          .fold(attributesDelta + seed)(_ => Set.empty)
+          .fold(attributesDelta + seed)(_ => attributesDelta)
       )
 
     // create all new attributes

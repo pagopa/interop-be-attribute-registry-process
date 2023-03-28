@@ -39,7 +39,7 @@
       "route": "getAttributeByOriginAndCode"
     },
     {
-      "verb": "DELETE",
+      "verb": "POST",
       "roles": [
         "internal"
       ],

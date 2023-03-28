@@ -5,12 +5,12 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.typesafe.config.{Config, ConfigFactory}
 import it.pagopa.interop.attributeregistrymanagement.client.{model => ManagementDependency}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
-import it.pagopa.interop.attributeregistryprocess.{model => ProcessDependency}
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiServiceImpl
+import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.service.{AttributeRegistryManagementService, PartyRegistryService}
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
-import it.pagopa.interop.partyregistryproxy.client.model.{Categories, Institutions}
+import it.pagopa.interop.partyregistryproxy.client.model.{Categories, Category, Institution, Institutions}
 import org.mongodb.scala.bson.conversions.Bson
 import org.scalamock.scalatest.MockFactory
 import spray.json._
@@ -42,17 +42,75 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
     mockReadModel
   )(ExecutionContext.global)
 
-  def mockSubject(uuid: String): Try[JWTClaimsSet] = Success(new JWTClaimsSet.Builder().subject(uuid).build())
+  val categories: Categories =
+    Categories(Seq(Category("YADA", "YADA", "test", "IPA"), Category("OPA", "OPA", "test", "IPA")), 2)
 
-  def delta(
-    attrs: List[ProcessDependency.Attribute],
-    attributesSeeds: Seq[ProcessDependency.AttributeSeed]
-  ): Set[ProcessDependency.AttributeSeed] =
-    attributesSeeds.foldLeft[Set[ProcessDependency.AttributeSeed]](Set.empty)((attributesDelta, seed) =>
-      attrs
-        .find(persisted => seed.origin == persisted.origin && seed.code == persisted.code)
-        .fold(attributesDelta + seed)(_ => attributesDelta)
+  val institutions: Institutions = Institutions(
+    Seq(
+      Institution(
+        id = "1111",
+        originId = "104532",
+        o = Option("test"),
+        ou = Option("test"),
+        aoo = Option("test"),
+        taxCode = "19530",
+        category = "C7",
+        description = "104532",
+        digitalAddress = "test",
+        address = "test",
+        zipCode = "49300",
+        origin = "IPA"
+      ),
+      Institution(
+        id = "2222",
+        originId = "205942",
+        o = Option("test"),
+        ou = Option("test"),
+        aoo = Option("test"),
+        taxCode = "19530",
+        category = "L8",
+        description = "205942",
+        digitalAddress = "test",
+        address = "test",
+        zipCode = "90142",
+        origin = "IPA"
+      )
+    ),
+    2
+  )
+
+  val attributeSeeds: Seq[AttributeSeed] = Seq(
+    AttributeSeed(
+      code = Some("YADA"),
+      kind = AttributeKind.CERTIFIED,
+      description = "YADA",
+      origin = Some("IPA"),
+      name = "YADA"
+    ),
+    AttributeSeed(
+      code = Some("OPA"),
+      kind = AttributeKind.CERTIFIED,
+      description = "OPA",
+      origin = Some("IPA"),
+      name = "OPA"
+    ),
+    AttributeSeed(
+      code = Some("104532"),
+      kind = AttributeKind.CERTIFIED,
+      description = "104532",
+      origin = Some("IPA"),
+      name = "104532"
+    ),
+    AttributeSeed(
+      code = Some("205942"),
+      kind = AttributeKind.CERTIFIED,
+      description = "205942",
+      origin = Some("IPA"),
+      name = "205942"
     )
+  )
+
+  def mockSubject(uuid: String): Try[JWTClaimsSet] = Success(new JWTClaimsSet.Builder().subject(uuid).build())
 
   def mockCreateAttribute(attributeSeed: ManagementDependency.AttributeSeed, result: ManagementDependency.Attribute)(
     implicit contexts: Seq[(String, String)]

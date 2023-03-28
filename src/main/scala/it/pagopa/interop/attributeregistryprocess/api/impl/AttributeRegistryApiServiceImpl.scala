@@ -3,18 +3,21 @@ package it.pagopa.interop.attributeregistryprocess.api.impl
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import akka.http.scaladsl.server.Directives.onComplete
 import akka.http.scaladsl.server.Route
+import cats.implicits.toTraverseOps
 import com.mongodb.client.model.Filters
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats.paFormat
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
+import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelQueries
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, Problem}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, Attributes, Problem}
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
@@ -170,7 +173,7 @@ final case class AttributeRegistryApiServiceImpl(
 
   }
 
-  private def getAll[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
+  def getAll[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
     def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
       get(offset, limit).flatMap(xs =>
         if (xs.size < limit) Future.successful(xs ++ acc)
@@ -179,5 +182,22 @@ final case class AttributeRegistryApiServiceImpl(
     }
 
     go(0)(Nil)
+  }
+
+  override def getAttributes(limit: Int, offset: Int, kinds: String)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+    val kinds                      = parseArrayParameters(kinds)
+    val operationLabel             =
+      s"Getting attributes with kinds = $kinds, limit = $limit, offset = $offset"
+    logger.info(operationLabel)
+    val result: Future[Attributes] = for {
+      result <- ReadModelQueries.getAttributes(kinds, offset, limit)(readModelService)
+    } yield Attributes(attributes = result.results.map(_.toApi), totalCount = result.totalCount)
+
+    onComplete(result) {
+      getAttributesResponse(operationLabel)(getAttributes200)
+    }
   }
 }

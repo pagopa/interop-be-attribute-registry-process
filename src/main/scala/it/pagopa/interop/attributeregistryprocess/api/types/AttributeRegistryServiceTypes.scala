@@ -83,4 +83,16 @@ object AttributeRegistryServiceTypes {
       case AttributeModel.Verified  => AttributeKind.VERIFIED
     }
   }
+
+  implicit class CatalogAttributeConverter(private val ca: ) extends AnyVal {
+    def convertToApiEService(eService: readmodel.CatalogItem): EService = EService(
+      id = eService.id,
+      producerId = eService.producerId,
+      name = eService.name,
+      description = eService.description,
+      technology = convertToApiTechnology(eService.technology),
+      attributes = convertToApiAttributes(eService.attributes),
+      descriptors = eService.descriptors.map(convertToApiDescriptor)
+    )
+  }
 }

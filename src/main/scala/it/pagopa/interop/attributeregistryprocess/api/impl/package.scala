@@ -2,7 +2,8 @@ package it.pagopa.interop.attributeregistryprocess.api
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
-import it.pagopa.interop.attributeregistryprocess.model._
+import it.pagopa.interop.attributeregistrymanagement.client.model.{AttributeKind, Attribute => AttributeManagement}
+import it.pagopa.interop.attributeregistryprocess.model.{AttributeSeed, Attributes, Problem, ProblemError, Attribute => AttributeProcess}
 import it.pagopa.interop.commons.utils.SprayCommonFormats._
 import spray.json._
 
@@ -12,7 +13,10 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
 
   final val entityMarshallerProblem: ToEntityMarshaller[Problem]    = sprayJsonMarshaller[Problem]
   implicit def attributeSeedFormat: RootJsonFormat[AttributeSeed]   = jsonFormat5(AttributeSeed)
-  implicit def attributeFormat: RootJsonFormat[Attribute]           = jsonFormat7(Attribute)
-  implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat1(Attributes)
+  implicit def attributeFormat: RootJsonFormat[AttributeProcess]           = jsonFormat7(AttributeProcess)
+
+  implicit def attributeFormat: RootJsonFormat[AttributeManagement] = jsonFormat7(AttributeManagement)
+
+  implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat2(Attributes)
 
 }

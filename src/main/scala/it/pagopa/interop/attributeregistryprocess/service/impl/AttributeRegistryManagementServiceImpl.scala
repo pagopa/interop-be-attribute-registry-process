@@ -1,14 +1,16 @@
 package it.pagopa.interop.attributeregistryprocess.service.impl
 
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
-import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiError, ApiRequest, BearerToken}
+import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
+import it.pagopa.interop.attributeregistrymanagement.client.invoker.{
+  ApiError,
+  ApiRequest,
+  BearerToken,
+  ApiInvoker => AttributeRegistryManagementInvoker
+}
 import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.RegistryAttributeNotFound
-import it.pagopa.interop.attributeregistryprocess.service.{
-  AttributeRegistryManagementApi,
-  AttributeRegistryManagementInvoker,
-  AttributeRegistryManagementService
-}
+import it.pagopa.interop.attributeregistryprocess.service.AttributeRegistryManagementService
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 import it.pagopa.interop.commons.utils.withHeaders
 

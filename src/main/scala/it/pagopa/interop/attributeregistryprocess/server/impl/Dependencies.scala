@@ -1,5 +1,6 @@
 package it.pagopa.interop.attributeregistryprocess.server.impl
 
+import akka.actor
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.complete
@@ -28,6 +29,10 @@ import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.errors.{Problem => CommonProblem}
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import it.pagopa.interop.commons.utils.{AkkaUtils, OpenapiUtils}
+import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
+import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
+import it.pagopa.interop.commons.cqrs.service.{MongoDbReadModelService, ReadModelService}
+import it.pagopa.interop.partyregistryproxy.client.api.{CategoryApi, InstitutionApi}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -63,12 +68,31 @@ trait Dependencies {
     loggingEnabled = false
   )
 
+  val readModelService: ReadModelService = new MongoDbReadModelService(ApplicationConfiguration.readModelConfig)
+
+  private def partyProcessService(
+    blockingEc: ExecutionContextExecutor
+  )(implicit actorSystem: ActorSystem[_]): PartyRegistryService = {
+    implicit val classic: actor.ActorSystem = actorSystem.classicSystem
+    PartyRegistryServiceImpl(
+      PartyProxyInvoker(blockingEc),
+      CategoryApi(ApplicationConfiguration.partyProxyUrl),
+      InstitutionApi(ApplicationConfiguration.partyProxyUrl)
+    )
+  }
+
   def attributeRegistryApi(jwtReader: JWTReader, blockingEc: ExecutionContextExecutor)(implicit
     actorSystem: ActorSystem[_],
     ec: ExecutionContext
   ): AttributeApi =
     new AttributeApi(
-      AttributeRegistryApiServiceImpl(attributeRegistryManagement(blockingEc), uuidSupplier, dateTimeSupplier),
+      AttributeRegistryApiServiceImpl(
+        attributeRegistryManagement(blockingEc),
+        uuidSupplier,
+        dateTimeSupplier,
+        partyProcessService(blockingEc),
+        readModelService
+      ),
       AttributeRegistryApiMarshallerImpl,
       jwtReader.OAuth2JWTValidatorAsContexts
     )

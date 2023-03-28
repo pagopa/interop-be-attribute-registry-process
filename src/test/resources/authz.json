@@ -37,6 +37,13 @@
         "m2m"
       ],
       "route": "getAttributeByOriginAndCode"
+    },
+    {
+      "verb": "POST",
+      "roles": [
+        "internal"
+      ],
+      "route": "loadCertifiedAttributes"
     }
   ]
 }

@@ -6,14 +6,14 @@ object Dependencies {
 
   private[this] object akka {
     lazy val namespace           = "com.typesafe.akka"
-    lazy val actorTyped          = namespace                       %% "akka-actor-typed"       % akkaVersion
-    lazy val actor               = namespace                       %% "akka-actor"             % akkaVersion
-    lazy val persistence         = namespace                       %% "akka-persistence-typed" % akkaVersion
-    lazy val stream              = namespace                       %% "akka-stream"            % akkaVersion
-    lazy val http                = namespace                       %% "akka-http"              % akkaHttpVersion
-    lazy val httpJson            = namespace                       %% "akka-http-spray-json"   % akkaHttpVersion
-    lazy val httpJson4s          = "de.heikoseeberger"             %% "akka-http-json4s"       % "1.39.2"
-    lazy val management          = "com.lightbend.akka.management" %% "akka-management"        % akkaManagementVersion
+    lazy val actorTyped          = namespace                       %% "akka-actor-typed"            % akkaVersion
+    lazy val actor               = namespace                       %% "akka-actor"                  % akkaVersion
+    lazy val persistence         = namespace                       %% "akka-persistence-typed"      % akkaVersion
+    lazy val stream              = namespace                       %% "akka-stream"                 % akkaVersion
+    lazy val http                = namespace                       %% "akka-http"                   % akkaHttpVersion
+    lazy val httpJson            = namespace                       %% "akka-http-spray-json"        % akkaHttpVersion
+    lazy val httpJson4s          = "de.heikoseeberger"             %% "akka-http-json4s"            % "1.39.2"
+    lazy val management          = "com.lightbend.akka.management" %% "akka-management"             % akkaManagementVersion
     lazy val managementLogLevels =
       "com.lightbend.akka.management" %% "akka-management-loglevels-logback" % akkaManagementVersion
     lazy val slf4j          = namespace %% "akka-slf4j"               % akkaVersion
@@ -27,7 +27,10 @@ object Dependencies {
     lazy val namespace                         = "it.pagopa"
     lazy val attributeRegistryManagementClient =
       namespace %% "interop-be-attribute-registry-management-client" % attributeRegistryManagementVersion
-
+    lazy val attributeRegistryManagementModels =
+      namespace %% "interop-be-attribute-registry-management-models" % attributeRegistryManagementVersion
+    lazy val partyProxyClient =
+      namespace %% "interop-be-party-registry-proxy-client" % partyProxyVersion
     lazy val commonsUtils = namespace %% "interop-commons-utils" % commonsVersion
     lazy val jwt          = namespace %% "interop-commons-jwt"   % commonsVersion
     lazy val commonsCqrs  = namespace %% "interop-commons-cqrs"  % commonsVersion
@@ -90,8 +93,10 @@ object Dependencies {
       logback.classic                          % Compile,
       mustache.mustache                        % Compile,
       pagopa.attributeRegistryManagementClient % Compile,
+      pagopa.attributeRegistryManagementModels % Compile,
       pagopa.commonsUtils                      % Compile,
       pagopa.commonsCqrs                       % Compile,
+      pagopa.partyProxyClient                  % Compile,
       pagopa.jwt                               % Compile,
       akka.httpTestkit                         % Test,
       akka.testkit                             % Test,

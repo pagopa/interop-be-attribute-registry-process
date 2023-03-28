@@ -94,7 +94,9 @@ class AttributeRegistryApiServiceSpec
       )
     )
     "succeed with creation of all attributes retrieved from both Categories and Institutions if ReadModel is empty" in {
-      val expectedDelta = attributeSeeds
+      val expectedDelta                            = attributeSeeds.toSet
+      val attributesfromRM: List[ProcessAttribute] = List()
+      val deltaAttributes                          = delta(attributesfromRM, attributeSeeds)
 
       implicit val context: Seq[(String, String)] =
         Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> UUID.randomUUID().toString)
@@ -119,7 +121,7 @@ class AttributeRegistryApiServiceSpec
 
       Post() ~> service.loadCertifiedAttributes() ~> check {
         status shouldEqual StatusCodes.NoContent
-        assert(expectedDelta == attributeSeeds)
+        assert(expectedDelta == deltaAttributes)
       }
     }
     "succeed with creation of delta of attributes retrieved from both Categories and Institutions if ReadModel is not empty" in {

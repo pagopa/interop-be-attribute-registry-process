@@ -19,7 +19,11 @@ object ReadModelQueries {
     for {
       attributes <- readModel.aggregate[Attribute](
         "attributes",
-        Seq(`match`(query), project(fields(include("data"))), sort(ascending("data.code"))),
+        Seq(
+          `match`(query),
+          project(fields(include("data"), computed("lowerName", Document("""{ "$toLower" : "$data.name" }""")))),
+          sort(ascending("lowerName"))
+        ),
         offset = offset,
         limit = limit
       )

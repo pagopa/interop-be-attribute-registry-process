@@ -1,10 +1,10 @@
 package it.pagopa.interop.attributeregistryprocess.common.readmodel
 
-import com.mongodb.client.model.Filters
 import it.pagopa.interop.attributeregistrymanagement.client.model.Attribute
-import it.pagopa.interop.attributeregistryprocess.api.impl.attributeFormat
+import it.pagopa.interop.attributeregistryprocess.api.impl.attributeManagementFormat
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import org.mongodb.scala.Document
+import org.mongodb.scala.model.Filters
 import org.mongodb.scala.model.Aggregates.{`match`, count, project, sort}
 import org.mongodb.scala.model.Projections.{computed, fields, include}
 import org.mongodb.scala.model.Sorts.ascending
@@ -39,5 +39,5 @@ object ReadModelQueries {
     } yield PaginatedResult(results = attributes, totalCount = count.headOption.map(_.totalCount).getOrElse(0))
   }
 
-  def mapToVarArgs[A, B](l: Seq[A])(f: Seq[A] => B): Option[B] = Option.when(l.nonEmpty)(f(l))
+  private def mapToVarArgs[A, B](l: Seq[A])(f: Seq[A] => B): Option[B] = Option.when(l.nonEmpty)(f(l))
 }

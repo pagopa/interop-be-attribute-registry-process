@@ -55,8 +55,7 @@ paths:
             type: array
             items:
               type: string
-            default: []
-          explode: true
+          required: true
       responses:
         '200':
           description: A List of Attributes

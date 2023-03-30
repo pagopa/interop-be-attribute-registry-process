@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object ReadModelQueries {
   def getAttributes(kinds: List[String], offset: Int, limit: Int)(
     readModel: ReadModelService
-  )(implicit ec: ExecutionContext): Future[PaginatedResult[Attribute]] = {
+  )(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
     val query = mapToVarArgs(kinds.map(Filters.eq("kind", _)))(Filters.or).getOrElse(Filters.empty())
     for {
       attributes <- readModel.aggregate[Attribute](

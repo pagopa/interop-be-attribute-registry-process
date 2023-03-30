@@ -32,9 +32,9 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/IpAddress'
     get:
-      summary: Get attributes from Read Model
+      summary: Get attributes
       operationId: getAttributes
-      description: 'returns attributes of kinds from the Read Model.'
+      description: 'returns attributes'
       tags:
         - attribute
       parameters:
@@ -54,7 +54,7 @@ paths:
           schema:
             type: array
             items:
-              type: string
+              $ref: '#/components/schemas/AttributeKind'
           required: true
       responses:
         '200':

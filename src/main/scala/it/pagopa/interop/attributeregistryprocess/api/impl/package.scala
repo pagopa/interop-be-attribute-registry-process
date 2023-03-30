@@ -22,24 +22,6 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
   implicit def attributeSeedFormat: RootJsonFormat[AttributeSeed]       = jsonFormat5(AttributeSeed)
   implicit def attributeProcessFormat: RootJsonFormat[AttributeProcess] = jsonFormat7(AttributeProcess)
 
-  implicit object AttributeKindFormat extends RootJsonFormat[AttributeKind] {
-    def write(obj: AttributeKind): JsValue =
-      obj match {
-        case CERTIFIED => JsString("CERTIFIED")
-        case DECLARED  => JsString("DECLARED")
-        case VERIFIED  => JsString("VERIFIED")
-      }
-
-    def read(json: JsValue): AttributeKind =
-      json match {
-        case JsString("CERTIFIED") => CERTIFIED
-        case JsString("DECLARED")  => DECLARED
-        case JsString("VERIFIED")  => VERIFIED
-        case unrecognized => deserializationError(s"AttributeKind serialization error ${unrecognized.toString}")
-      }
-  }
-
-  implicit def attributeManagementFormat: RootJsonFormat[AttributeManagement] = jsonFormat7(AttributeManagement)
 
   implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat2(Attributes)
 

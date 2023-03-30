@@ -189,7 +189,7 @@ final case class AttributeRegistryApiServiceImpl(
   ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
     val kindsList: List[String]    = parseArrayParameters(kinds)
     val operationLabel             =
-      s"Getting attributes with kinds = $kinds, limit = $limit, offset = $offset"
+      s"Getting attributes with name = $name, limit = $limit, offset = $offset, kinds = $kinds"
     logger.info(operationLabel)
     val result: Future[Attributes] = for {
       result <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)

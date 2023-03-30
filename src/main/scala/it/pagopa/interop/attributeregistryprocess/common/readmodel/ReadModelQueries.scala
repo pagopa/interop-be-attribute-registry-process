@@ -1,7 +1,7 @@
 package it.pagopa.interop.attributeregistryprocess.common.readmodel
 
-import it.pagopa.interop.attributeregistrymanagement.client.model.Attribute
-import it.pagopa.interop.attributeregistryprocess.api.impl.attributeManagementFormat
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import org.mongodb.scala.Document
 import org.mongodb.scala.model.Filters
@@ -12,12 +12,17 @@ import org.mongodb.scala.model.Sorts.ascending
 import scala.concurrent.{ExecutionContext, Future}
 
 object ReadModelQueries {
-  def getAttributes(kinds: List[String], offset: Int, limit: Int)(
+  def getAttributes(name: Option[String], kinds: List[String], offset: Int, limit: Int)(
     readModel: ReadModelService
   )(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
-    val query = mapToVarArgs(kinds.map(Filters.eq("kind", _)))(Filters.or).getOrElse(Filters.empty())
+
+    val kindsFilter = mapToVarArgs(kinds.map(Filters.eq("kind", _)))(Filters.or)
+    val nameFilter  = name.map(Filters.regex("data.name", _, "i"))
+    val query       = mapToVarArgs(kindsFilter.toList ++ nameFilter.toList)(Filters.and)
+      .getOrElse(Filters.empty())
+
     for {
-      attributes <- readModel.aggregate[Attribute](
+      attributes <- readModel.aggregate[PersistentAttribute](
         "attributes",
         Seq(
           `match`(query),

@@ -183,7 +183,7 @@ final case class AttributeRegistryApiServiceImpl(
     go(0)(Nil)
   }
 
-  override def getAttributes(limit: Int, offset: Int, kinds: String)(implicit
+  override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
   ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
@@ -192,8 +192,8 @@ final case class AttributeRegistryApiServiceImpl(
       s"Getting attributes with kinds = $kinds, limit = $limit, offset = $offset"
     logger.info(operationLabel)
     val result: Future[Attributes] = for {
-      result <- ReadModelQueries.getAttributes(kindsList, offset, limit)(readModelService)
-    } yield Attributes(attributes = result.results.map(_.toApi), totalCount = result.totalCount)
+      result <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)
+    } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {
       getAttributesResponse(operationLabel)(getAttributes200)

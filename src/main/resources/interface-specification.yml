@@ -31,6 +31,46 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/IpAddress'
+    get:
+      summary: Get attributes
+      operationId: getAttributes
+      description: 'returns attributes'
+      tags:
+        - attribute
+      parameters:
+        - in: query
+          name: name
+          description: Query to filter Attributes by name
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+          required: true
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          required: true
+        - in: query
+          name: kinds
+          description: Array of kinds
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttributeKind'
+          required: true
+      responses:
+        '200':
+          description: A List of Attributes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
     post:
       summary: Creates attribute
       tags:
@@ -331,12 +371,16 @@ components:
       title: AttributesResponse
       type: object
       properties:
-        attributes:
+        results:
           type: array
           items:
             $ref: '#/components/schemas/Attribute'
+        totalCount:
+          type: integer
+          format: int32
       required:
-        - attributes
+        - results
+        - totalCount
   securitySchemes:
     bearerAuth:
       type: http

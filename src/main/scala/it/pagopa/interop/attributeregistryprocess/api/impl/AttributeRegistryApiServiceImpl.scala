@@ -9,12 +9,14 @@ import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonForma
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
+import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelQueries
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, Problem}
+import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
@@ -179,5 +181,22 @@ final case class AttributeRegistryApiServiceImpl(
     }
 
     go(0)(Nil)
+  }
+
+  override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+    val kindsList: List[String]    = parseArrayParameters(kinds)
+    val operationLabel             =
+      s"Getting attributes with name = $name, limit = $limit, offset = $offset, kinds = $kinds"
+    logger.info(operationLabel)
+    val result: Future[Attributes] = for {
+      result <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)
+    } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
+
+    onComplete(result) {
+      getAttributesResponse(operationLabel)(getAttributes200)
+    }
   }
 }

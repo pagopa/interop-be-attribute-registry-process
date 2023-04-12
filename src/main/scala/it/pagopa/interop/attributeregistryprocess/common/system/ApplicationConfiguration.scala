@@ -12,7 +12,7 @@ object ApplicationConfiguration {
 
   val attributeRegistryManagementURL: String =
     config.getString("attribute-registry-process.services.attribute-registry-management")
-  val partyProxyUrl: String                  = config.getString("services.party-proxy")
+  val partyProxyUrl: String                  = config.getString("attribute-registry-process.services.party-proxy")
 
   val readModelConfig: ReadModelConfig = {
     val connectionString: String = config.getString("attribute-registry-process.read-model.db.connection-string")

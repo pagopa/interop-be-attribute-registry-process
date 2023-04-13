@@ -103,7 +103,7 @@ object Dependencies {
       akka.untypedTestkit                      % Test,
       scalamock.core                           % Test,
       scalatest.core                           % Test,
-      "org.scalameta"                         %% "munit"                % "1.0.0-M6" % Test,
+      "org.scalameta"                         %% "munit"                % "1.0.0-M7" % Test,
       "org.scalameta"                         %% "munit-scalacheck"     % "1.0.0-M6" % Test,
       "com.softwaremill.diffx"                %% "diffx-munit"          % "0.8.2"    % Test
     )

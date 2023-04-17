@@ -3,10 +3,14 @@ package it.pagopa.interop.attributeregistryprocess.api.impl
 import akka.http.scaladsl.marshalling.ToEntityMarshaller
 import akka.http.scaladsl.server.Directives.onComplete
 import akka.http.scaladsl.server.Route
+import cats.syntax.all._
 import com.mongodb.client.model.Filters
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats.paFormat
-import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.{
+  PersistentAttribute,
+  PersistentAttributeKind
+}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelQueries
@@ -187,12 +191,15 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
   ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
-    val kindsList: List[String]    = parseArrayParameters(kinds)
-    val operationLabel             =
+    val operationLabel =
       s"Getting attributes with name = $name, limit = $limit, offset = $offset, kinds = $kinds"
     logger.info(operationLabel)
+
     val result: Future[Attributes] = for {
-      result <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)
+      kindsList <- parseArrayParameters(kinds)
+        .traverse(AttributeKind.fromValue(_).map(PersistentAttributeKind.fromApi))
+        .toFuture
+      result    <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)
     } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {

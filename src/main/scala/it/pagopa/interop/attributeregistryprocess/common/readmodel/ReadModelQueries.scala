@@ -1,6 +1,9 @@
 package it.pagopa.interop.attributeregistryprocess.common.readmodel
 
-import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttribute
+import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.{
+  PersistentAttribute,
+  PersistentAttributeKind
+}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.JsonFormats._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import org.mongodb.scala.Document
@@ -12,11 +15,11 @@ import org.mongodb.scala.model.Sorts.ascending
 import scala.concurrent.{ExecutionContext, Future}
 
 object ReadModelQueries {
-  def getAttributes(name: Option[String], kinds: List[String], offset: Int, limit: Int)(
+  def getAttributes(name: Option[String], kinds: List[PersistentAttributeKind], offset: Int, limit: Int)(
     readModel: ReadModelService
   )(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
 
-    val kindsFilter = mapToVarArgs(kinds.map(Filters.eq("kind", _)))(Filters.or)
+    val kindsFilter = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
     val nameFilter  = name.map(Filters.regex("data.name", _, "i"))
     val query       = mapToVarArgs(kindsFilter.toList ++ nameFilter.toList)(Filters.and)
       .getOrElse(Filters.empty())

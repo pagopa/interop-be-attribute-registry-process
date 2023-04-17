@@ -83,4 +83,13 @@ object AttributeRegistryServiceTypes {
       case AttributeModel.Verified  => AttributeKind.VERIFIED
     }
   }
+
+  implicit class PersistentAttributeKindTypeConverter(private val kind: AttributeModel.PersistentAttributeKind.type)
+      extends AnyVal {
+    def fromApi(kind: AttributeKind): AttributeModel.PersistentAttributeKind = kind match {
+      case AttributeKind.CERTIFIED => AttributeModel.Certified
+      case AttributeKind.DECLARED  => AttributeModel.Declared
+      case AttributeKind.VERIFIED  => AttributeModel.Verified
+    }
+  }
 }

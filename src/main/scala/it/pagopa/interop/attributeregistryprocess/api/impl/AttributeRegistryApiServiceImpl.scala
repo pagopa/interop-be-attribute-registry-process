@@ -120,7 +120,7 @@ final case class AttributeRegistryApiServiceImpl(
       logger.info(operationLabel)
 
       val result: Future[Unit] = for {
-        categories <- getAll(50)((page, limit) =>
+        categories <- getAllPages(50)((page, limit) =>
           partyRegistryService.getCategories(Some(page), Some(limit)).map(_.items)
         )
         attributeSeedsCategories   = categories.map(c =>
@@ -132,7 +132,7 @@ final case class AttributeRegistryApiServiceImpl(
             name = c.name
           )
         )
-        institutions <- getAll(50)((page, limit) =>
+        institutions <- getAllPages(50)((page, limit) =>
           partyRegistryService.getInstitutions(Some(page), Some(limit)).map(_.items)
         )
         attributeSeedsInstitutions = institutions.map(i =>
@@ -176,7 +176,9 @@ final case class AttributeRegistryApiServiceImpl(
 
   }
 
-  private def getAll[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
+  private def getAllPages[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = getAll(limit, 1)(get)
+
+  private def getAll[T](limit: Int, firstOffsetValue: Int = 0)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
     def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
       get(offset, limit).flatMap(xs =>
         if (xs.size < limit) Future.successful(xs ++ acc)
@@ -184,7 +186,7 @@ final case class AttributeRegistryApiServiceImpl(
       )
     }
 
-    go(0)(Nil)
+    go(firstOffsetValue)(Nil)
   }
 
   override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit

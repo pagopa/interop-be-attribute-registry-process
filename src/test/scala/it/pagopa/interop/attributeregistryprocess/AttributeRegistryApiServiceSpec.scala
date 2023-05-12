@@ -29,8 +29,8 @@ class AttributeRegistryApiServiceSpec
       implicit val context: Seq[(String, String)] =
         Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> UUID.randomUUID().toString)
 
-      mockGetCategories(Some(0), Some(50), result = categories)
-      mockGetInstitutions(Some(0), Some(50), result = institutions)
+      mockGetCategories(Some(1), Some(50), result = categories)
+      mockGetInstitutions(Some(1), Some(50), result = institutions)
       mockFind[PersistentAttributeDependency.PersistentAttribute](
         "attributes",
         Filters.empty(),
@@ -64,8 +64,8 @@ class AttributeRegistryApiServiceSpec
       implicit val context: Seq[(String, String)] =
         Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> UUID.randomUUID().toString)
 
-      mockGetCategories(Some(0), Some(50), result = categories)
-      mockGetInstitutions(Some(0), Some(50), result = institutions)
+      mockGetCategories(Some(1), Some(50), result = categories)
+      mockGetInstitutions(Some(1), Some(50), result = institutions)
 
       val attributesfromRM: Seq[PersistentAttributeDependency.PersistentAttribute] =
         Seq[PersistentAttributeDependency.PersistentAttribute](
@@ -138,8 +138,8 @@ class AttributeRegistryApiServiceSpec
       implicit val context: Seq[(String, String)] =
         Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> UUID.randomUUID().toString)
 
-      mockGetCategories(Some(0), Some(50), result = categories)
-      mockGetInstitutions(Some(0), Some(50), result = institutions)
+      mockGetCategories(Some(1), Some(50), result = categories)
+      mockGetInstitutions(Some(1), Some(50), result = institutions)
 
       val attributesfromRM: Seq[PersistentAttributeDependency.PersistentAttribute] =
         Seq[PersistentAttributeDependency.PersistentAttribute](

@@ -170,7 +170,7 @@ final case class AttributeRegistryApiServiceImpl(
       attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
       deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)
       // The client must log in case of errors
-      _ <- Future.parCollectWithLatch(50)(deltaAttributes.toList)(attributeSeed =>
+      _ <- Future.parCollectWithLatch(100)(deltaAttributes.toList)(attributeSeed =>
         attributeRegistryManagementService.createAttribute(attributeSeed.toClient)
       )
     } yield ()

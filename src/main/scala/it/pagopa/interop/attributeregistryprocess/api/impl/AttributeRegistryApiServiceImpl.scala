@@ -155,7 +155,7 @@ final case class AttributeRegistryApiServiceImpl(
 
   private def addNewAttributes(
     attributesSeeds: Seq[AttributeSeed]
-  )(implicit contexts: Seq[(String, String)]): Future[Set[Attribute]] = {
+  )(implicit contexts: Seq[(String, String)]): Future[Unit] = {
 
     // calculating the delta of attributes
     def delta(attrs: List[Attribute]): Set[AttributeSeed] =
@@ -169,10 +169,11 @@ final case class AttributeRegistryApiServiceImpl(
     for {
       attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
       deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)
-      newlyCreatedAttributes <- Future.traverseWithLatch(50)(deltaAttributes.toList)(attributeSeed =>
+      // The client must log in case of errors
+      _ <- Future.parCollectWithLatch(50)(deltaAttributes.toList)(attributeSeed =>
         attributeRegistryManagementService.createAttribute(attributeSeed.toClient)
       )
-    } yield newlyCreatedAttributes.map(_.toApi).toSet
+    } yield ()
 
   }
 

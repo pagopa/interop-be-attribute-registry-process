@@ -177,10 +177,10 @@ final case class AttributeRegistryApiServiceImpl(
   }
 
   private def getAllPages[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
-    def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
-      get(offset, limit).flatMap(xs =>
+    def go(page: Int)(acc: Seq[T]): Future[Seq[T]] = {
+      get(page, limit).flatMap(xs =>
         if (xs.size < limit) Future.successful(xs ++ acc)
-        else go(offset + 1)(xs ++ acc)
+        else go(page + 1)(xs ++ acc)
       )
     }
 

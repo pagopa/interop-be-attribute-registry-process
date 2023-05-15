@@ -176,9 +176,18 @@ final case class AttributeRegistryApiServiceImpl(
 
   }
 
-  private def getAllPages[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = getAll(limit, 1)(get)
+  private def getAllPages[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
+    def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
+      get(offset, limit).flatMap(xs =>
+        if (xs.size < limit) Future.successful(xs ++ acc)
+        else go(offset + 1)(xs ++ acc)
+      )
+    }
 
-  private def getAll[T](limit: Int, firstOffsetValue: Int = 0)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
+    go(1)(Nil)
+  }
+
+  private def getAll[T](limit: Int)(get: (Int, Int) => Future[Seq[T]]): Future[Seq[T]] = {
     def go(offset: Int)(acc: Seq[T]): Future[Seq[T]] = {
       get(offset, limit).flatMap(xs =>
         if (xs.size < limit) Future.successful(xs ++ acc)
@@ -186,7 +195,7 @@ final case class AttributeRegistryApiServiceImpl(
       )
     }
 
-    go(firstOffsetValue)(Nil)
+    go(0)(Nil)
   }
 
   override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit

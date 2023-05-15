@@ -169,10 +169,10 @@ final case class AttributeRegistryApiServiceImpl(
     for {
       attributesfromRM <- getAll(50)(readModelService.find[PersistentAttribute]("attributes", Filters.empty(), _, _))
       deltaAttributes = delta(attributesfromRM.map(_.toApi).toList)
-      newlyCreatedAttributes <- Future.traverse(deltaAttributes)(attributeSeed =>
+      newlyCreatedAttributes <- Future.traverseWithLatch(50)(deltaAttributes.toList)(attributeSeed =>
         attributeRegistryManagementService.createAttribute(attributeSeed.toClient)
       )
-    } yield newlyCreatedAttributes.map(_.toApi)
+    } yield newlyCreatedAttributes.map(_.toApi).toSet
 
   }
 

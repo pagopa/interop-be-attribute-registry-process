@@ -15,7 +15,8 @@
         "admin",
         "api",
         "security",
-        "m2m"
+        "m2m",
+        "support"
       ],
       "route": "getAttributeById"
     },
@@ -25,7 +26,8 @@
         "admin",
         "api",
         "security",
-        "m2m"
+        "m2m",
+        "support"
       ],
       "route": "getAttributeByName"
     },
@@ -34,7 +36,8 @@
       "roles": [
         "admin",
         "internal",
-        "m2m"
+        "m2m",
+        "support"
       ],
       "route": "getAttributeByOriginAndCode"
     },

@@ -61,7 +61,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
     val operationLabel: String = s"Retrieving attribute with ID $attributeId"
     logger.info(operationLabel)
 
@@ -81,7 +81,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
     val operationLabel: String = s"Retrieving attribute with name $name"
     logger.info(operationLabel)
 
@@ -100,7 +100,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, INTERNAL_ROLE, M2M_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, INTERNAL_ROLE, M2M_ROLE, SUPPORT_ROLE) {
     val operationLabel: String = s"Retrieving attribute $origin/$code"
     logger.info(operationLabel)
 
@@ -202,7 +202,7 @@ final case class AttributeRegistryApiServiceImpl(
   override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
     val operationLabel =
       s"Getting attributes with name = $name, limit = $limit, offset = $offset, kinds = $kinds"
     logger.info(operationLabel)

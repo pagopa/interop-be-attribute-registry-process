@@ -35,6 +35,17 @@
       "verb": "GET",
       "roles": [
         "admin",
+        "api",
+        "security",
+        "m2m",
+        "support"
+      ],
+      "route": "getAttributes"
+    },
+    {
+      "verb": "GET",
+      "roles": [
+        "admin",
         "internal",
         "m2m",
         "support"

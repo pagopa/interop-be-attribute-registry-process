@@ -22,6 +22,7 @@ import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
+import it.pagopa.interop.commons.utils.Digester
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -125,11 +126,11 @@ final case class AttributeRegistryApiServiceImpl(
         )
         attributeSeedsCategories   = categories.map(c =>
           AttributeSeed(
-            code = Option(c.code),
+            code = Option(Digester.toSha256(c.kind.getBytes)),
             kind = AttributeKind.CERTIFIED,
-            description = c.name, // passing the name since no description exists at party-registry-proxy
+            description = c.kind, // passing the name since no description exists at party-registry-proxy
             origin = Option(c.origin),
-            name = c.name
+            name = c.kind
           )
         )
         institutions <- getAllPages(50)((page, limit) =>

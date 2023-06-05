@@ -17,13 +17,13 @@ import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.util.UUID
+import it.pagopa.interop.commons.utils.Digester
 
 class AttributeRegistryApiServiceSpec
     extends AnyWordSpecLike
     with SpecHelper
     with ScalatestRouteTest
     with ScalaFutures {
-
   "Attributes loading" must {
     "succeed with creation of all attributes retrieved from both Categories and Institutions if ReadModel is empty" in {
       implicit val context: Seq[(String, String)] =
@@ -73,9 +73,9 @@ class AttributeRegistryApiServiceSpec
             id = UUID.randomUUID(),
             code = Some("YADA"),
             kind = PersistentAttributeDependency.Certified,
-            description = "YADA",
+            description = "test",
             origin = Some("IPA"),
-            name = "YADA",
+            name = "test",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(
@@ -99,11 +99,11 @@ class AttributeRegistryApiServiceSpec
 
       val expectedDelta: Set[AttributeSeed] = Set[AttributeSeed](
         AttributeSeed(
-          code = Some("OPA"),
+          code = Some(Digester.toSha256("test".getBytes())),
           kind = AttributeKind.CERTIFIED,
-          description = "OPA",
+          description = "test",
           origin = Some("IPA"),
-          name = "OPA"
+          name = "test"
         ),
         AttributeSeed(
           code = Some("205942"),
@@ -145,11 +145,11 @@ class AttributeRegistryApiServiceSpec
         Seq[PersistentAttributeDependency.PersistentAttribute](
           PersistentAttributeDependency.PersistentAttribute(
             id = UUID.randomUUID(),
-            code = Some("YADA"),
+            code = Some(Digester.toSha256("test".getBytes())),
             kind = PersistentAttributeDependency.Certified,
-            description = "YADA",
+            description = "test",
             origin = Some("IPA"),
-            name = "YADA",
+            name = "test",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(
@@ -163,11 +163,11 @@ class AttributeRegistryApiServiceSpec
           ),
           PersistentAttributeDependency.PersistentAttribute(
             id = UUID.randomUUID(),
-            code = Some("OPA"),
+            code = Some(Digester.toSha256("test".getBytes())),
             kind = PersistentAttributeDependency.Certified,
-            description = "OPA",
+            description = "test",
             origin = Some("IPA"),
-            name = "OPA",
+            name = "test",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(

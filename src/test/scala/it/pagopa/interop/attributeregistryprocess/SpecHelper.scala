@@ -82,11 +82,18 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
 
   val attributeSeeds: Seq[AttributeSeed] = Seq(
     AttributeSeed(
-      code = Some(Digester.toSha256("test".getBytes())),
+      code = Some("YADA"),
       kind = AttributeKind.CERTIFIED,
-      description = "test",
+      description = "YADA",
       origin = Some("IPA"),
-      name = "test"
+      name = "YADA"
+    ),
+    AttributeSeed(
+      code = Some("OPA"),
+      kind = AttributeKind.CERTIFIED,
+      description = "OPA",
+      origin = Some("IPA"),
+      name = "OPA"
     ),
     AttributeSeed(
       code = Some(Digester.toSha256("test".getBytes())),

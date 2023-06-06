@@ -55,7 +55,6 @@ class AttributeRegistryApiServiceSpec
           )
         )
       )
-
       Post() ~> service.loadCertifiedAttributes() ~> check {
         status shouldEqual StatusCodes.NoContent
       }
@@ -98,6 +97,13 @@ class AttributeRegistryApiServiceSpec
       )
 
       val expectedDelta: Set[AttributeSeed] = Set[AttributeSeed](
+        AttributeSeed(
+          code = Some("OPA"),
+          kind = AttributeKind.CERTIFIED,
+          description = "OPA",
+          origin = Some("IPA"),
+          name = "OPA"
+        ),
         AttributeSeed(
           code = Some(Digester.toSha256("test".getBytes())),
           kind = AttributeKind.CERTIFIED,
@@ -145,6 +151,15 @@ class AttributeRegistryApiServiceSpec
         Seq[PersistentAttributeDependency.PersistentAttribute](
           PersistentAttributeDependency.PersistentAttribute(
             id = UUID.randomUUID(),
+            code = Some("YADA"),
+            kind = PersistentAttributeDependency.Certified,
+            description = "YADA",
+            origin = Some("IPA"),
+            name = "YADA",
+            creationTime = OffsetDateTimeSupplier.get()
+          ),
+          PersistentAttributeDependency.PersistentAttribute(
+            id = UUID.randomUUID(),
             code = Some(Digester.toSha256("test".getBytes())),
             kind = PersistentAttributeDependency.Certified,
             description = "test",
@@ -163,11 +178,11 @@ class AttributeRegistryApiServiceSpec
           ),
           PersistentAttributeDependency.PersistentAttribute(
             id = UUID.randomUUID(),
-            code = Some(Digester.toSha256("test".getBytes())),
+            code = Some("OPA"),
             kind = PersistentAttributeDependency.Certified,
-            description = "test",
+            description = "OPA",
             origin = Some("IPA"),
-            name = "test",
+            name = "OPA",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(

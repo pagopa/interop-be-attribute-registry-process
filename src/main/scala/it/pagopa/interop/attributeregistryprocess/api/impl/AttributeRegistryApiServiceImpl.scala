@@ -124,15 +124,33 @@ final case class AttributeRegistryApiServiceImpl(
         categories <- getAllPages(50)((page, limit) =>
           partyRegistryService.getCategories(Some(page), Some(limit)).map(_.items)
         )
-        attributeSeedsCategories   = categories.map(c =>
-          AttributeSeed(
-            code = Option(Digester.toSha256(c.kind.getBytes)),
-            kind = AttributeKind.CERTIFIED,
-            description = c.kind, // passing the name since no description exists at party-registry-proxy
-            origin = Option(c.origin),
-            name = c.kind
+
+        attributeSeedsCategoriesNames = categories
+          .map(c =>
+            AttributeSeed(
+              code = Option(c.code),
+              kind = AttributeKind.CERTIFIED,
+              description = c.name, // passing the name since no description exists at party-registry-proxy
+              origin = Option(c.origin),
+              name = c.name
+            )
           )
-        )
+
+        attributeSeedsCategoriesKinds = categories
+          .distinctBy(_.kind)
+          .map(c =>
+            AttributeSeed(
+              code = Option(Digester.toSha256(c.kind.getBytes)),
+              kind = AttributeKind.CERTIFIED,
+              description = c.kind,
+              origin = Option(c.origin),
+              name = c.kind
+            )
+          )
+
+        attributeSeedsCategories =
+          attributeSeedsCategoriesKinds ++ attributeSeedsCategoriesNames
+
         institutions <- getAllPages(50)((page, limit) =>
           partyRegistryService.getInstitutions(Some(page), Some(limit)).map(_.items)
         )

@@ -72,9 +72,9 @@ class AttributeRegistryApiServiceSpec
             id = UUID.randomUUID(),
             code = Some("YADA"),
             kind = PersistentAttributeDependency.Certified,
-            description = "test",
+            description = "YADA",
             origin = Some("IPA"),
-            name = "test",
+            name = "YADA",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(

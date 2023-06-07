@@ -60,7 +60,8 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
         digitalAddress = "test",
         address = "test",
         zipCode = "49300",
-        origin = "IPA"
+        origin = "IPA",
+        kind = "A kind"
       ),
       Institution(
         id = "2222",
@@ -74,7 +75,8 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
         digitalAddress = "test",
         address = "test",
         zipCode = "90142",
-        origin = "IPA"
+        origin = "IPA",
+        kind = "A kind"
       )
     ),
     2

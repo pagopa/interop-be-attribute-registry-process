@@ -10,6 +10,7 @@ import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, Attribut
 import it.pagopa.interop.attributeregistryprocess.service.{AttributeRegistryManagementService, PartyRegistryService}
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
+import it.pagopa.interop.commons.utils.Digester
 import it.pagopa.interop.partyregistryproxy.client.model.{Categories, Category, Institution, Institutions}
 import org.mongodb.scala.bson.conversions.Bson
 import org.scalamock.scalatest.MockFactory
@@ -93,6 +94,13 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
       description = "OPA",
       origin = Some("IPA"),
       name = "OPA"
+    ),
+    AttributeSeed(
+      code = Some(Digester.toSha256("test".getBytes())),
+      kind = AttributeKind.CERTIFIED,
+      description = "test",
+      origin = Some("IPA"),
+      name = "test"
     ),
     AttributeSeed(
       code = Some("104532"),

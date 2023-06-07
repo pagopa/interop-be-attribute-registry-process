@@ -17,13 +17,13 @@ import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.util.UUID
+import it.pagopa.interop.commons.utils.Digester
 
 class AttributeRegistryApiServiceSpec
     extends AnyWordSpecLike
     with SpecHelper
     with ScalatestRouteTest
     with ScalaFutures {
-
   "Attributes loading" must {
     "succeed with creation of all attributes retrieved from both Categories and Institutions if ReadModel is empty" in {
       implicit val context: Seq[(String, String)] =
@@ -55,7 +55,6 @@ class AttributeRegistryApiServiceSpec
           )
         )
       )
-
       Post() ~> service.loadCertifiedAttributes() ~> check {
         status shouldEqual StatusCodes.NoContent
       }
@@ -106,6 +105,13 @@ class AttributeRegistryApiServiceSpec
           name = "OPA"
         ),
         AttributeSeed(
+          code = Some(Digester.toSha256("test".getBytes())),
+          kind = AttributeKind.CERTIFIED,
+          description = "test",
+          origin = Some("IPA"),
+          name = "test"
+        ),
+        AttributeSeed(
           code = Some("205942"),
           kind = AttributeKind.CERTIFIED,
           description = "205942",
@@ -150,6 +156,15 @@ class AttributeRegistryApiServiceSpec
             description = "YADA",
             origin = Some("IPA"),
             name = "YADA",
+            creationTime = OffsetDateTimeSupplier.get()
+          ),
+          PersistentAttributeDependency.PersistentAttribute(
+            id = UUID.randomUUID(),
+            code = Some(Digester.toSha256("test".getBytes())),
+            kind = PersistentAttributeDependency.Certified,
+            description = "test",
+            origin = Some("IPA"),
+            name = "test",
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(

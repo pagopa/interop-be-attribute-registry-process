@@ -96,7 +96,8 @@ object FakeDependencies {
               digitalAddress = "test",
               address = "test",
               zipCode = "49300",
-              origin = "ipa"
+              origin = "ipa",
+              kind = "A kind"
             )
           ),
           1

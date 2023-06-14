@@ -5,7 +5,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.typesafe.config.{Config, ConfigFactory}
 import it.pagopa.interop.attributeregistrymanagement.client.{model => ManagementDependency}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
-import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiServiceImpl
+import it.pagopa.interop.attributeregistryprocess.api.impl.{AttributeRegistryApiServiceImpl, admittedAttributeKind}
 import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.service.{AttributeRegistryManagementService, PartyRegistryService}
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
@@ -44,7 +44,10 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
   )(ExecutionContext.global)
 
   val categories: Categories =
-    Categories(Seq(Category("YADA", "YADA", "test", "IPA"), Category("OPA", "OPA", "test", "IPA")), 2)
+    Categories(
+      Seq(Category("YADA", "YADA", admittedAttributeKind, "IPA"), Category("OPA", "OPA", admittedAttributeKind, "IPA")),
+      2
+    )
 
   val institutions: Institutions = Institutions(
     Seq(
@@ -61,7 +64,7 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
         address = "test",
         zipCode = "49300",
         origin = "IPA",
-        kind = "A kind"
+        kind = admittedAttributeKind
       ),
       Institution(
         id = "2222",
@@ -76,7 +79,7 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
         address = "test",
         zipCode = "90142",
         origin = "IPA",
-        kind = "A kind"
+        kind = admittedAttributeKind
       )
     ),
     2
@@ -98,11 +101,11 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
       name = "OPA"
     ),
     AttributeSeed(
-      code = Some(Digester.toSha256("test".getBytes())),
+      code = Some(Digester.toSha256(admittedAttributeKind.getBytes())),
       kind = AttributeKind.CERTIFIED,
-      description = "test",
+      description = admittedAttributeKind,
       origin = Some("IPA"),
-      name = "test"
+      name = admittedAttributeKind
     ),
     AttributeSeed(
       code = Some("104532"),

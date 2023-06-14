@@ -20,9 +20,9 @@ import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.Digester
 import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
-import it.pagopa.interop.commons.utils.Digester
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -138,6 +138,7 @@ final case class AttributeRegistryApiServiceImpl(
 
         attributeSeedsCategoriesKinds = categories
           .distinctBy(_.kind)
+          .filter(_.kind == admittedAttributeKind)
           .map(c =>
             AttributeSeed(
               code = Option(Digester.toSha256(c.kind.getBytes)),
@@ -148,8 +149,7 @@ final case class AttributeRegistryApiServiceImpl(
             )
           )
 
-        attributeSeedsCategories =
-          attributeSeedsCategoriesKinds ++ attributeSeedsCategoriesNames
+        attributeSeedsCategories = attributeSeedsCategoriesKinds ++ attributeSeedsCategoriesNames
 
         institutions <- getAllPages(50)((page, limit) =>
           partyRegistryService.getInstitutions(Some(page), Some(limit)).map(_.items)

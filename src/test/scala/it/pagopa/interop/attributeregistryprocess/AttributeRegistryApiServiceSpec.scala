@@ -5,6 +5,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.mongodb.client.model.Filters
 import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute => ManagementAttribute}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => PersistentAttributeDependency}
+import it.pagopa.interop.attributeregistryprocess.api.impl.admittedAttributeKind
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes.{
   AttributeSeedConverter,
   ProcessKindConverter
@@ -105,11 +106,11 @@ class AttributeRegistryApiServiceSpec
           name = "OPA"
         ),
         AttributeSeed(
-          code = Some(Digester.toSha256("test".getBytes())),
+          code = Some(Digester.toSha256(admittedAttributeKind.getBytes())),
           kind = AttributeKind.CERTIFIED,
-          description = "test",
+          description = admittedAttributeKind,
           origin = Some("IPA"),
-          name = "test"
+          name = admittedAttributeKind
         ),
         AttributeSeed(
           code = Some("205942"),
@@ -160,11 +161,11 @@ class AttributeRegistryApiServiceSpec
           ),
           PersistentAttributeDependency.PersistentAttribute(
             id = UUID.randomUUID(),
-            code = Some(Digester.toSha256("test".getBytes())),
+            code = Some(Digester.toSha256(admittedAttributeKind.getBytes())),
             kind = PersistentAttributeDependency.Certified,
-            description = "test",
+            description = admittedAttributeKind,
             origin = Some("IPA"),
-            name = "test",
+            name = admittedAttributeKind,
             creationTime = OffsetDateTimeSupplier.get()
           ),
           PersistentAttributeDependency.PersistentAttribute(

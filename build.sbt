@@ -97,7 +97,7 @@ lazy val client = project
 
 lazy val utils = project
   .in(file("utils"))
-  .settings(name := "interop-be-agreement-process-utils", scalafmtOnCompile := true, Docker / publish := {})
+  .settings(name := "interop-be-attribute-registry-process-utils", scalafmtOnCompile := true, Docker / publish := {})
 
 lazy val root = (project in file("."))
   .settings(

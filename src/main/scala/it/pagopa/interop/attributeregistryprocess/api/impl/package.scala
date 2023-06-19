@@ -22,6 +22,4 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit def attributesResponseFormat: RootJsonFormat[Attributes] = jsonFormat2(Attributes)
 
-  final val admittedAttributeKind: String = "Pubbliche Amministrazioni"
-
 }

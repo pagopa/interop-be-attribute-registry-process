@@ -11,6 +11,7 @@ import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute
   PersistentAttribute,
   PersistentAttributeKind
 }
+import it.pagopa.interop.attributeregistryprocess.Utils.kindToBeExcluded
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelQueries
@@ -138,7 +139,7 @@ final case class AttributeRegistryApiServiceImpl(
 
         attributeSeedsCategoriesKinds = categories
           .distinctBy(_.kind)
-          .filter(_.kind == admittedAttributeKind)
+          .filterNot(c => kindToBeExcluded.contains(c.kind)) // Inncluding only Pubbliche Amministrazioni
           .map(c =>
             AttributeSeed(
               code = Option(Digester.toSha256(c.kind.getBytes)),

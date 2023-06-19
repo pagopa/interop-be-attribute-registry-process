@@ -5,12 +5,12 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.typesafe.config.{Config, ConfigFactory}
 import it.pagopa.interop.attributeregistrymanagement.client.{model => ManagementDependency}
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
-import it.pagopa.interop.attributeregistryprocess.api.impl.{AttributeRegistryApiServiceImpl, admittedAttributeKind}
+import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiServiceImpl
 import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.service.{AttributeRegistryManagementService, PartyRegistryService}
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
-import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import it.pagopa.interop.commons.utils.Digester
+import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import it.pagopa.interop.partyregistryproxy.client.model.{Categories, Category, Institution, Institutions}
 import org.mongodb.scala.bson.conversions.Bson
 import org.scalamock.scalatest.MockFactory
@@ -21,7 +21,8 @@ import scala.util.{Success, Try}
 
 trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFactory {
 
-  final val bearerToken: String = "token"
+  final val bearerToken: String           = "token"
+  final val admittedAttributeKind: String = "Pubbliche Amministrazioni"
 
   val config: Config = ConfigFactory
     .parseResourcesAnySyntax("application-test")

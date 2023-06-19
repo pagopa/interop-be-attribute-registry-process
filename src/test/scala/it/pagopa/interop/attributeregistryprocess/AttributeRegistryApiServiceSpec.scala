@@ -5,20 +5,18 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.mongodb.client.model.Filters
 import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute => ManagementAttribute}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => PersistentAttributeDependency}
-import it.pagopa.interop.attributeregistryprocess.api.impl.admittedAttributeKind
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes.{
   AttributeSeedConverter,
   ProcessKindConverter
 }
 import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.commons.utils.service.OffsetDateTimeSupplier
-import it.pagopa.interop.commons.utils.{ORGANIZATION_ID_CLAIM, USER_ROLES}
+import it.pagopa.interop.commons.utils.{Digester, ORGANIZATION_ID_CLAIM, USER_ROLES}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.util.UUID
-import it.pagopa.interop.commons.utils.Digester
 
 class AttributeRegistryApiServiceSpec
     extends AnyWordSpecLike

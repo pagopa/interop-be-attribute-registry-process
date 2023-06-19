@@ -58,12 +58,12 @@ generateCode := {
 (Test / test)       := ((Test / test) dependsOn generateCode).value
 
 cleanFiles += baseDirectory.value / "generated" / "src"
-
 cleanFiles += baseDirectory.value / "generated" / "target"
 
 cleanFiles += baseDirectory.value / "client" / "src"
-
 cleanFiles += baseDirectory.value / "client" / "target"
+
+cleanFiles += baseDirectory.value / "utils" / "target"
 
 val runStandalone = inputKey[Unit]("Run the app using standalone configuration")
 runStandalone := {
@@ -95,6 +95,10 @@ lazy val client = project
     Docker / publish    := {}
   )
 
+lazy val utils = project
+  .in(file("utils"))
+  .settings(name := "interop-be-attribute-registry-process-utils", scalafmtOnCompile := true, Docker / publish := {})
+
 lazy val root = (project in file("."))
   .settings(
     name                        := "interop-be-attribute-registry-process",
@@ -113,8 +117,9 @@ lazy val root = (project in file("."))
     libraryDependencies         := Dependencies.Jars.`server`,
     dockerCommands += Cmd("LABEL", s"org.opencontainers.image.source https://github.com/pagopa/${name.value}")
   )
-  .aggregate(client)
+  .aggregate(client, utils)
   .dependsOn(generated)
+  .dependsOn(utils)
   .enablePlugins(JavaAppPackaging)
   .enablePlugins(DockerPlugin)
   .enablePlugins(NoPublishPlugin)

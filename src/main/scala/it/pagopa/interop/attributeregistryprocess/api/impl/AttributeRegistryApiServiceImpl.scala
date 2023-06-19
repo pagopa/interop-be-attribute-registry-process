@@ -139,7 +139,7 @@ final case class AttributeRegistryApiServiceImpl(
 
         attributeSeedsCategoriesKinds = categories
           .distinctBy(_.kind)
-          .filterNot(c => kindToBeExcluded.contains(c.kind)) // Inncluding only Pubbliche Amministrazioni
+          .filterNot(c => kindToBeExcluded.contains(c.kind)) // Including only Pubbliche Amministrazioni
           .map(c =>
             AttributeSeed(
               code = Option(Digester.toSha256(c.kind.getBytes)),

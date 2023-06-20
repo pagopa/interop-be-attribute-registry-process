@@ -6,14 +6,14 @@ object Dependencies {
 
   private[this] object akka {
     lazy val namespace           = "com.typesafe.akka"
-    lazy val actorTyped          = namespace                       %% "akka-actor-typed"            % akkaVersion
-    lazy val actor               = namespace                       %% "akka-actor"                  % akkaVersion
-    lazy val persistence         = namespace                       %% "akka-persistence-typed"      % akkaVersion
-    lazy val stream              = namespace                       %% "akka-stream"                 % akkaVersion
-    lazy val http                = namespace                       %% "akka-http"                   % akkaHttpVersion
-    lazy val httpJson            = namespace                       %% "akka-http-spray-json"        % akkaHttpVersion
-    lazy val httpJson4s          = "de.heikoseeberger"             %% "akka-http-json4s"            % "1.39.2"
-    lazy val management          = "com.lightbend.akka.management" %% "akka-management"             % akkaManagementVersion
+    lazy val actorTyped          = namespace                       %% "akka-actor-typed"       % akkaVersion
+    lazy val actor               = namespace                       %% "akka-actor"             % akkaVersion
+    lazy val persistence         = namespace                       %% "akka-persistence-typed" % akkaVersion
+    lazy val stream              = namespace                       %% "akka-stream"            % akkaVersion
+    lazy val http                = namespace                       %% "akka-http"              % akkaHttpVersion
+    lazy val httpJson            = namespace                       %% "akka-http-spray-json"   % akkaHttpVersion
+    lazy val httpJson4s          = "de.heikoseeberger"             %% "akka-http-json4s"       % "1.39.2"
+    lazy val management          = "com.lightbend.akka.management" %% "akka-management"        % akkaManagementVersion
     lazy val managementLogLevels =
       "com.lightbend.akka.management" %% "akka-management-loglevels-logback" % akkaManagementVersion
     lazy val slf4j          = namespace %% "akka-slf4j"               % akkaVersion
@@ -78,7 +78,7 @@ object Dependencies {
       Seq(jackson.annotations % Compile, jackson.core % Compile, jackson.databind % Compile)
     lazy val `server`: Seq[ModuleID]  = Seq(
       // For making Java 12 happy
-      "javax.annotation"                       % "javax.annotation-api" % "1.3.2"  % "compile",
+      "javax.annotation"                       % "javax.annotation-api" % "1.3.2"    % "compile",
       //
       akka.actor                               % Compile,
       akka.actorTyped                          % Compile,
@@ -103,9 +103,9 @@ object Dependencies {
       akka.untypedTestkit                      % Test,
       scalamock.core                           % Test,
       scalatest.core                           % Test,
-      "org.scalameta"                         %% "munit"                % "1.0.0-M6"  % Test,
-      "org.scalameta"                         %% "munit-scalacheck"     % "1.0.0-M6"  % Test,
-      "com.softwaremill.diffx"                %% "diffx-munit"          % "0.7.1"     % Test
+      "org.scalameta"                         %% "munit"                % "1.0.0-M6" % Test,
+      "org.scalameta"                         %% "munit-scalacheck"     % "1.0.0-M6" % Test,
+      "com.softwaremill.diffx"                %% "diffx-munit"          % "0.8.3"    % Test
     )
     lazy val client: Seq[ModuleID]    =
       Seq(akka.stream, akka.http, akka.httpJson4s, akka.slf4j, json4s.jackson, json4s.ext, pagopa.commonsUtils).map(

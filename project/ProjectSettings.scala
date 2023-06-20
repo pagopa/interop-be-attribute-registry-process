@@ -31,7 +31,6 @@ object ProjectSettings {
       "interfaceVersion" -> interfaceVersion
     )
 
-
     def setupBuildInfo: Project = {
       project
         .enablePlugins(BuildInfoPlugin)

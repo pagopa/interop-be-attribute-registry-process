@@ -197,6 +197,43 @@ paths:
                 $ref: '#/components/schemas/Problem'
       operationId: getAttributeById
       description: 'returns the attribute in the registry corresponding to attributeId, if any.'
+  '/bulk/attributes':
+    parameters:
+      - $ref: '#/components/parameters/CorrelationIdHeader'
+      - $ref: '#/components/parameters/IpAddress'
+    get:
+      summary: 'returns the list of attributes for a given bulked ids request'
+      tags:
+        - attribute
+      operationId: getBulkedAttributes
+      responses:
+        '200':
+          description: array of attributes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+      description: Returns the list of attributes indicated in the request
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+          description: 'a string representing the attribute ids concatenated by ","'
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+          required: true
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          required: true
   /jobs/attributes/certified/load:
     parameters:
       - $ref: '#/components/parameters/CorrelationIdHeader'

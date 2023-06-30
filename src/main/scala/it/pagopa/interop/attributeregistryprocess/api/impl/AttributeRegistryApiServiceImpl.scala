@@ -231,7 +231,24 @@ final case class AttributeRegistryApiServiceImpl(
       kindsList <- parseArrayParameters(kinds)
         .traverse(AttributeKind.fromValue(_).map(PersistentAttributeKind.fromApi))
         .toFuture
-      result    <- ReadModelQueries.getAttributes(name, kindsList, offset, limit)(readModelService)
+      result    <- ReadModelQueries.getAttributes(name, kindsList, Nil, offset, limit)(readModelService)
+    } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
+
+    onComplete(result) {
+      getAttributesResponse(operationLabel)(getAttributes200)
+    }
+  }
+
+  override def getBulkedAttributes(ids: String, limit: Int, offset: Int)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
+    val operationLabel = s"Retrieving attributes in bulk by id in [$ids]"
+    logger.info(operationLabel)
+
+    val result: Future[Attributes] = for {
+      uuids  <- parseArrayParameters(ids).distinct.traverse(_.toFutureUUID)
+      result <- ReadModelQueries.getAttributes(None, Nil, uuids, offset, limit)(readModelService)
     } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {

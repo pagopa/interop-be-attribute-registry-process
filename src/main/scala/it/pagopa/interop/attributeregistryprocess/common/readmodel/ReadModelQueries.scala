@@ -12,16 +12,22 @@ import org.mongodb.scala.model.Aggregates.{`match`, count, project, sort}
 import org.mongodb.scala.model.Projections.{computed, fields, include}
 import org.mongodb.scala.model.Sorts.ascending
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 object ReadModelQueries {
-  def getAttributes(name: Option[String], kinds: List[PersistentAttributeKind], offset: Int, limit: Int)(
-    readModel: ReadModelService
-  )(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
+  def getAttributes(
+    name: Option[String],
+    kinds: List[PersistentAttributeKind],
+    ids: List[UUID],
+    offset: Int,
+    limit: Int
+  )(readModel: ReadModelService)(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
 
+    val idsFilter   = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
     val kindsFilter = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
     val nameFilter  = name.map(Filters.regex("data.name", _, "i"))
-    val query       = mapToVarArgs(kindsFilter.toList ++ nameFilter.toList)(Filters.and)
+    val query       = mapToVarArgs(idsFilter.toList ++ kindsFilter.toList ++ nameFilter.toList)(Filters.and)
       .getOrElse(Filters.empty())
 
     for {

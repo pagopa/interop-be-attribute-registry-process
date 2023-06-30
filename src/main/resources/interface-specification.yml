@@ -201,11 +201,20 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/IpAddress'
-    get:
+    post:
       summary: 'returns the list of attributes for a given bulked ids request'
       tags:
         - attribute
       operationId: getBulkedAttributes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        description: 'a string representing the attribute ids concatenated by ","'
       responses:
         '200':
           description: array of attributes
@@ -215,12 +224,6 @@ paths:
                 $ref: '#/components/schemas/Attributes'
       description: Returns the list of attributes indicated in the request
       parameters:
-        - in: query
-          name: ids
-          schema:
-            type: string
-          description: 'a string representing the attribute ids concatenated by ","'
-          required: true
         - in: query
           name: limit
           schema:

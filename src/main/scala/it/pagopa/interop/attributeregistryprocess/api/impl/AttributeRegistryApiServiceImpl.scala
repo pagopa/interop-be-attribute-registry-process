@@ -239,7 +239,7 @@ final case class AttributeRegistryApiServiceImpl(
     }
   }
 
-  override def getBulkedAttributes(ids: String, limit: Int, offset: Int)(implicit
+  override def getBulkedAttributes(limit: Int, offset: Int, ids: Seq[String])(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
   ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
@@ -247,7 +247,7 @@ final case class AttributeRegistryApiServiceImpl(
     logger.info(operationLabel)
 
     val result: Future[Attributes] = for {
-      uuids  <- parseArrayParameters(ids).distinct.traverse(_.toFutureUUID)
+      uuids  <- ids.toList.distinct.traverse(_.toFutureUUID)
       result <- ReadModelQueries.getAttributes(None, Nil, uuids, offset, limit)(readModelService)
     } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 

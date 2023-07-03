@@ -55,6 +55,17 @@
     {
       "verb": "POST",
       "roles": [
+        "admin",
+        "api",
+        "security",
+        "m2m",
+        "support"
+      ],
+      "route": "getBulkedAttributes"
+    },
+    {
+      "verb": "POST",
+      "roles": [
         "internal"
       ],
       "route": "loadCertifiedAttributes"

@@ -55,9 +55,6 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
       Institution(
         id = "1111",
         originId = "104532",
-        o = Option("test"),
-        ou = Option("test"),
-        aoo = Option("test"),
         taxCode = "19530",
         category = "C7",
         description = "104532",
@@ -70,9 +67,6 @@ trait SpecHelper extends SprayJsonSupport with DefaultJsonProtocol with MockFact
       Institution(
         id = "2222",
         originId = "205942",
-        o = Option("test"),
-        ou = Option("test"),
-        aoo = Option("test"),
         taxCode = "19530",
         category = "L8",
         description = "205942",

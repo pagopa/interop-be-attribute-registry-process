@@ -87,9 +87,6 @@ object FakeDependencies {
             Institution(
               id = "1111",
               originId = "104532",
-              o = Option("test"),
-              ou = Option("test"),
-              aoo = Option("test"),
               taxCode = "19530",
               category = "C7",
               description = "YADA",

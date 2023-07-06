@@ -2,9 +2,8 @@ package it.pagopa.interop.attributeregistryprocess
 
 import akka.actor.ActorSystem
 import it.pagopa.interop._
-import it.pagopa.interop.partyregistryproxy.client.invoker.{ApiInvoker => PartyApiProxyInvoker}
-import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
 import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
+import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
 
 import scala.concurrent.ExecutionContextExecutor
 
@@ -20,10 +19,5 @@ package object service {
   object AttributeRegistryManagementApi {
     def apply(baseUrl: String): AttributeRegistryManagementApi =
       attributeregistrymanagement.client.api.AttributeApi(baseUrl)
-  }
-
-  object PartyProxyInvoker {
-    def apply(blockingEc: ExecutionContextExecutor)(implicit actorSystem: ActorSystem): PartyApiProxyInvoker =
-      PartyApiProxyInvoker(blockingEc)(actorSystem)
   }
 }

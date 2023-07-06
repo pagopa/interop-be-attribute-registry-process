@@ -1,6 +1,5 @@
 package it.pagopa.interop.attributeregistryprocess.server.impl
 
-import akka.actor
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.complete
@@ -10,6 +9,8 @@ import com.atlassian.oai.validator.report.ValidationReport
 import com.nimbusds.jose.proc.SecurityContext
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier
 import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
+import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
+import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
 import it.pagopa.interop.attributeregistryprocess.api.impl.{
   AttributeRegistryApiMarshallerImpl,
   AttributeRegistryApiServiceImpl,
@@ -21,6 +22,7 @@ import it.pagopa.interop.attributeregistryprocess.common.system.ApplicationConfi
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers.serviceCode
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.attributeregistryprocess.service.impl._
+import it.pagopa.interop.commons.cqrs.service.{MongoDbReadModelService, ReadModelService}
 import it.pagopa.interop.commons.jwt.service.JWTReader
 import it.pagopa.interop.commons.jwt.service.impl.{DefaultJWTReader, getClaimsVerifier}
 import it.pagopa.interop.commons.jwt.{JWTConfiguration, KID, PublicKeysHolder, SerializedKey}
@@ -29,10 +31,6 @@ import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.errors.{Problem => CommonProblem}
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 import it.pagopa.interop.commons.utils.{AkkaUtils, OpenapiUtils}
-import it.pagopa.interop.attributeregistrymanagement.client.invoker.{ApiInvoker => AttributeRegistryManagementInvoker}
-import it.pagopa.interop.attributeregistrymanagement.client.api.{AttributeApi => AttributeRegistryManagementApi}
-import it.pagopa.interop.commons.cqrs.service.{MongoDbReadModelService, ReadModelService}
-import it.pagopa.interop.partyregistryproxy.client.api.{CategoryApi, InstitutionApi}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -70,17 +68,6 @@ trait Dependencies {
 
   val readModelService: ReadModelService = new MongoDbReadModelService(ApplicationConfiguration.readModelConfig)
 
-  private def partyProcessService(
-    blockingEc: ExecutionContextExecutor
-  )(implicit actorSystem: ActorSystem[_]): PartyRegistryService = {
-    implicit val classic: actor.ActorSystem = actorSystem.classicSystem
-    PartyRegistryServiceImpl(
-      PartyProxyInvoker(blockingEc),
-      CategoryApi(ApplicationConfiguration.partyProxyUrl),
-      InstitutionApi(ApplicationConfiguration.partyProxyUrl)
-    )
-  }
-
   def attributeRegistryApi(jwtReader: JWTReader, blockingEc: ExecutionContextExecutor)(implicit
     actorSystem: ActorSystem[_],
     ec: ExecutionContext
@@ -90,7 +77,6 @@ trait Dependencies {
         attributeRegistryManagement(blockingEc),
         uuidSupplier,
         dateTimeSupplier,
-        partyProcessService(blockingEc),
         readModelService
       ),
       AttributeRegistryApiMarshallerImpl,

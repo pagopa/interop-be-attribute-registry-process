@@ -5,7 +5,6 @@ import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiS
 import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
 import it.pagopa.interop.attributeregistryprocess.util.FakeDependencies.{
   FakeAttributeRegistryManagement,
-  FakePartyProcessService,
   FakeReadModelService
 }
 import it.pagopa.interop.attributeregistryprocess.util.{AuthorizedRoutes, ClusteredMUnitRouteTest}
@@ -16,14 +15,12 @@ import java.util.UUID
 
 class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
   val fakeAttributeRegistryManagement: FakeAttributeRegistryManagement = FakeAttributeRegistryManagement()
-  val fakePartyProcessService: FakePartyProcessService                 = FakePartyProcessService()
   val fakeReadModel: ReadModelService                                  = new FakeReadModelService
 
   val service: AttributeRegistryApiServiceImpl = AttributeRegistryApiServiceImpl(
     fakeAttributeRegistryManagement,
     () => UUID.randomUUID(),
     () => OffsetDateTime.now(),
-    fakePartyProcessService,
     fakeReadModel
   )
 
@@ -59,11 +56,6 @@ class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
       endpoint,
       { implicit c: Seq[(String, String)] => service.getAttributeByOriginAndCode("fakeSeed", "code") }
     )
-  }
-
-  test("method authorization must succeed for loadCertifiedAttributes") {
-    val endpoint = AuthorizedRoutes.endpoints("loadCertifiedAttributes")
-    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.loadCertifiedAttributes() })
   }
 
   test("method authorization must succeed for getBulkedAttributes") {

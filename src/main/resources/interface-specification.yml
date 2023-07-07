@@ -237,19 +237,6 @@ paths:
             type: integer
             minimum: 0
           required: true
-  /jobs/attributes/certified/load:
-    parameters:
-      - $ref: '#/components/parameters/CorrelationIdHeader'
-      - $ref: '#/components/parameters/IpAddress'
-    post:
-      summary: Certified attributes upload
-      tags:
-        - attribute
-      responses:
-        '204':
-          description: Attributes loaded
-      operationId: loadCertifiedAttributes
-      description: 'Loads certified attributes on the registry.'
   /status:
     get:
       tags:

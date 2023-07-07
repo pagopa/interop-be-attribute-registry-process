@@ -5,7 +5,8 @@
       "roles": [
         "admin",
         "api",
-        "m2m"
+        "m2m",
+        "internal"
       ],
       "route": "createAttribute"
     },
@@ -62,13 +63,6 @@
         "support"
       ],
       "route": "getBulkedAttributes"
-    },
-    {
-      "verb": "POST",
-      "roles": [
-        "internal"
-      ],
-      "route": "loadCertifiedAttributes"
     }
   ]
 }

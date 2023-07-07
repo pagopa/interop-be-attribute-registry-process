@@ -1,9 +1,8 @@
 package it.pagopa.interop.attributeregistryprocess.util
 
 import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeKind, AttributeSeed}
-import it.pagopa.interop.attributeregistryprocess.service.{AttributeRegistryManagementService, PartyRegistryService}
+import it.pagopa.interop.attributeregistryprocess.service.AttributeRegistryManagementService
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
-import it.pagopa.interop.partyregistryproxy.client.model.{Categories, Category, Institution, Institutions}
 import org.mongodb.scala.bson.conversions.Bson
 import spray.json.JsonReader
 
@@ -68,36 +67,6 @@ object FakeDependencies {
           origin = Some("IPA"),
           name = "AttributeX",
           creationTime = OffsetDateTime.now()
-        )
-      )
-  }
-
-  case class FakePartyProcessService() extends PartyRegistryService {
-    override def getCategories(page: Option[Int] = None, limit: Option[Int] = None)(implicit
-      contexts: Seq[(String, String)]
-    ): Future[Categories] =
-      Future.successful(Categories(Seq(Category("YADA", "Proxied", "test", "IPA")), 1))
-
-    override def getInstitutions(page: Option[Int] = None, limit: Option[Int] = None)(implicit
-      contexts: Seq[(String, String)]
-    ): Future[Institutions] =
-      Future.successful(
-        Institutions(
-          Seq(
-            Institution(
-              id = "1111",
-              originId = "104532",
-              taxCode = "19530",
-              category = "C7",
-              description = "YADA",
-              digitalAddress = "test",
-              address = "test",
-              zipCode = "49300",
-              origin = "ipa",
-              kind = "A kind"
-            )
-          ),
-          1
         )
       )
   }

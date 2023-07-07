@@ -29,8 +29,6 @@ object Dependencies {
       namespace %% "interop-be-attribute-registry-management-client" % attributeRegistryManagementVersion
     lazy val attributeRegistryManagementModels =
       namespace %% "interop-be-attribute-registry-management-models" % attributeRegistryManagementVersion
-    lazy val partyProxyClient =
-      namespace %% "interop-be-party-registry-proxy-client" % partyProxyVersion
     lazy val commonsUtils = namespace %% "interop-commons-utils" % commonsVersion
     lazy val jwt          = namespace %% "interop-commons-jwt"   % commonsVersion
     lazy val commonsCqrs  = namespace %% "interop-commons-cqrs"  % commonsVersion
@@ -96,7 +94,6 @@ object Dependencies {
       pagopa.attributeRegistryManagementModels % Compile,
       pagopa.commonsUtils                      % Compile,
       pagopa.commonsCqrs                       % Compile,
-      pagopa.partyProxyClient                  % Compile,
       pagopa.jwt                               % Compile,
       akka.httpTestkit                         % Test,
       akka.testkit                             % Test,

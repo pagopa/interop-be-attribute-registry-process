@@ -19,4 +19,7 @@ object AttributeRegistryApiMarshallerImpl
   override implicit def toEntityMarshallerProblem: ToEntityMarshaller[Problem] = entityMarshallerProblem
 
   override implicit def toEntityMarshallerAttributes: ToEntityMarshaller[Attributes] = sprayJsonMarshaller[Attributes]
+
+  override implicit def fromEntityUnmarshallerStringList: FromEntityUnmarshaller[Seq[String]] =
+    sprayJsonUnmarshaller[Seq[String]]
 }

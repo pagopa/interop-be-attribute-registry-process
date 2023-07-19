@@ -135,10 +135,13 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel = s"Retrieving attributes in bulk by id in [$ids]"
     logger.info(operationLabel)
 
-    val result: Future[Attributes] = for {
-      uuids  <- ids.toList.distinct.traverse(_.toFutureUUID)
-      result <- ReadModelQueries.getAttributes(None, Nil, uuids, offset, limit)(readModelService)
-    } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
+    val result: Future[Attributes] =
+      if (ids.isEmpty) Future.successful(Attributes(results = Seq.empty, totalCount = 0))
+      else
+        for {
+          uuids  <- ids.toList.distinct.traverse(_.toFutureUUID)
+          result <- ReadModelQueries.getAttributes(None, Nil, uuids, offset, limit)(readModelService)
+        } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {
       getAttributesResponse(operationLabel)(getAttributes200)

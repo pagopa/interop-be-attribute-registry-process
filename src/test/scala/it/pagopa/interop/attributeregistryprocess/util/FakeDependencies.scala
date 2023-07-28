@@ -87,16 +87,23 @@ object FakeDependencies {
       ec: ExecutionContext
     ): Future[Seq[T]] = Future.successful(Nil)
 
-    override def aggregate[T](collectionName: String, pipeline: Seq[Bson], offset: Int, limit: Int)(implicit
-      evidence$4: JsonReader[T],
-      ec: ExecutionContext
-    ): Future[Seq[T]] = Future.successful(Nil)
+    def aggregate[T: JsonReader](
+      collectionName: String,
+      pipeline: Seq[Bson],
+      offset: Int,
+      limit: Int,
+      allowDiskUse: Boolean = false
+    )(implicit ec: ExecutionContext): Future[Seq[T]] = Future.successful(Nil)
 
     override def close(): Unit = ()
 
-    override def aggregateRaw[T: JsonReader](collectionName: String, pipeline: Seq[Bson], offset: Int, limit: Int)(
-      implicit ec: ExecutionContext
-    ): Future[Seq[T]] = Future.successful(Nil)
+    def aggregateRaw[T: JsonReader](
+      collectionName: String,
+      pipeline: Seq[Bson],
+      offset: Int,
+      limit: Int,
+      allowDiskUse: Boolean = false
+    )(implicit ec: ExecutionContext): Future[Seq[T]] = Future.successful(Nil)
   }
 
 }

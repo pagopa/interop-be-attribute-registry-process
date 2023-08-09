@@ -2,7 +2,12 @@ package it.pagopa.interop.attributeregistryprocess.api.types
 
 import it.pagopa.interop.attributeregistrymanagement.client.{model => AttributeRegistryManagementDependency}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => AttributeModel}
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, CertifiedAttributeSeed}
+import it.pagopa.interop.attributeregistryprocess.model.{
+  Attribute,
+  AttributeKind,
+  AttributeSeed,
+  CertifiedAttributeSeed
+}
 
 object AttributeRegistryServiceTypes {
 

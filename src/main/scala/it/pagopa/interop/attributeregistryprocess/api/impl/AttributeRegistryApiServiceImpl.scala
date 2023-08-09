@@ -23,6 +23,7 @@ import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.util.UUID
 
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
@@ -35,6 +36,39 @@ final case class AttributeRegistryApiServiceImpl(
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
+  private def checkTenant(tenantId: UUID): Future[Unit] = for {
+    tenant <- tenantManagementService.getTenantById(tenantId)
+    _      <-
+      if (
+        tenant.features
+          .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
+          .exists(_.certifierId.trim().nonEmpty)
+      ) Future.unit
+      else Future.failed(TenantNotFound(tenantId))
+  } yield ()
+
+  override def createInternalCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
+    toEntityMarshallerProblem: ToEntityMarshaller[Problem]
+  ): Route = authorize(INTERNAL_ROLE) {
+    val operationLabel: String = s"Creating certified attribute with name ${attributeSeed.name}"
+    logger.info(operationLabel)
+
+    val result: Future[Attribute] = for {
+      requesterUuid <- getOrganizationIdFutureUUID(contexts)
+      _             <- checkTenant(requesterUuid)
+      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
+    } yield attribute.toApi
+
+    onComplete(result) {
+      createCertifiedAttributeResponse[Attribute](operationLabel) { res =>
+        logger.info(s"Certified attribute created with id ${res.id}")
+        createCertifiedAttribute200(res)
+      }
+    }
+  }
+
   override def createCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
@@ -45,14 +79,7 @@ final case class AttributeRegistryApiServiceImpl(
 
     val result: Future[Attribute] = for {
       requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      tenant        <- tenantManagementService.getTenantById(requesterUuid)
-      _             <-
-        if (
-          tenant.features
-            .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
-            .exists(_.certifierId.trim().nonEmpty)
-        ) Future.unit
-        else Future.failed(TenantNotFound(requesterUuid))
+      _             <- checkTenant(requesterUuid)
       attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
     } yield attribute.toApi
 

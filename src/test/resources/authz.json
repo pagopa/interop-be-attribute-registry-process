@@ -1,5 +1,12 @@
 {
-  "endpoints": [
+  "endpoints": [ 
+    {
+      "verb": "POST",
+      "roles": [
+        "internal"
+      ],
+      "route": "createInternalCertifiedAttribute"
+    },
     {
       "verb": "POST",
       "roles": [

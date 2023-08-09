@@ -141,6 +141,48 @@ paths:
             schema:
               $ref: '#/components/schemas/AttributeSeed'
         description: Contains the attribute data to save.
+  '/internal/certifiedAttributes':
+    parameters:
+      - $ref: '#/components/parameters/CorrelationIdHeader'
+      - $ref: '#/components/parameters/IpAddress'
+    post:
+      summary: Creates certified attribute for internal user
+      tags:
+        - attribute
+      operationId: createInternalCertifiedAttribute
+      responses:
+        '200':
+          description: Certified attribute created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attribute'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      description: Creates the attribute passed as payload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertifiedAttributeSeed'
+        description: Contains the attribute data to save.
   '/attributes':
     parameters:
       - $ref: '#/components/parameters/CorrelationIdHeader'

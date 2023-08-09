@@ -125,4 +125,52 @@ class AttributeRegistryApiServiceSpec
       }
     }
   }
+  "Internal certified attribute creation" should {
+    "succeed" in {
+
+      val requesterUuid = UUID.randomUUID()
+
+      implicit val context: Seq[(String, String)] =
+        Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
+
+      val attributeSeed: CertifiedAttributeSeed =
+        CertifiedAttributeSeed(name = "name", description = "description", code = "code", origin = "origin")
+      val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.certifiedFeature))
+
+      val expected: AttributeDependency.Attribute = AttributeDependency.Attribute(
+        id = UUID.randomUUID(),
+        code = Some("code"),
+        kind = AttributeDependency.AttributeKind.CERTIFIED,
+        description = "description",
+        origin = Some("origin"),
+        name = "name",
+        creationTime = SpecData.timestamp
+      )
+
+      mockOrganizationRetrieve(requesterUuid, tenant)
+      mockAttributeCreate(attributeSeed.toManagement, expected)
+
+      Post() ~> service.createInternalCertifiedAttribute(attributeSeed) ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Attribute] shouldEqual expected.toApi
+      }
+    }
+    "fail if certifier is empty" in {
+
+      val requesterUuid = UUID.randomUUID()
+
+      implicit val context: Seq[(String, String)] =
+        Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
+
+      val attributeSeed: CertifiedAttributeSeed =
+        CertifiedAttributeSeed(name = "name", description = "description", code = "code", origin = "origin")
+      val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.emptyCertifiedFeature))
+
+      mockOrganizationRetrieve(requesterUuid, tenant)
+
+      Post() ~> service.createCertifiedAttribute(attributeSeed) ~> check {
+        status shouldEqual StatusCodes.Forbidden
+      }
+    }
+  }
 }

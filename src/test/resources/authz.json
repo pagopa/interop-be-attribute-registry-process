@@ -5,10 +5,27 @@
       "roles": [
         "admin",
         "api",
-        "m2m",
-        "internal"
+        "m2m"
       ],
-      "route": "createAttribute"
+      "route": "createCertifiedAttribute"
+    },
+    {
+      "verb": "POST",
+      "roles": [
+        "admin",
+        "api",
+        "m2m"
+      ],
+      "route": "createDeclaredAttribute"
+    },
+    {
+      "verb": "POST",
+      "roles": [
+        "admin",
+        "api",
+        "m2m"
+      ],
+      "route": "createVerifiedAttribute"
     },
     {
       "verb": "GET",

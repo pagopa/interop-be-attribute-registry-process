@@ -15,14 +15,14 @@ import org.mongodb.scala.model.Sorts.ascending
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-object ReadModelQueries {
+object ReadModelRegistryAttributeQueries extends ReadModelQuery {
   def getAttributes(
     name: Option[String],
     kinds: List[PersistentAttributeKind],
     ids: List[UUID],
     offset: Int,
     limit: Int
-  )(readModel: ReadModelService)(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
+  )(implicit ec: ExecutionContext, readModel: ReadModelService): Future[PaginatedResult[PersistentAttribute]] = {
 
     val idsFilter   = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
     val kindsFilter = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
@@ -56,6 +56,4 @@ object ReadModelQueries {
       )
     } yield PaginatedResult(results = attributes, totalCount = count.headOption.map(_.totalCount).getOrElse(0))
   }
-
-  private def mapToVarArgs[A, B](l: Seq[A])(f: Seq[A] => B): Option[B] = Option.when(l.nonEmpty)(f(l))
 }

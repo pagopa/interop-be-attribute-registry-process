@@ -8,13 +8,16 @@ import com.typesafe.scalalogging.{Logger, LoggerTakingImplicit}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.attribute.PersistentAttributeKind
 import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
-import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelQueries
+import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelRegistryAttributeQueries
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
+import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.TenantNotFound
 import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.attributeregistryprocess.service._
+import it.pagopa.interop.tenantmanagement.model.tenant.PersistentTenantFeature
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
+import it.pagopa.interop.commons.utils.AkkaUtils._
 import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
@@ -23,30 +26,80 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
+  tenantManagementService: TenantManagementService,
   uuidSupplier: UUIDSupplier,
-  dateTimeSupplier: OffsetDateTimeSupplier,
-  readModelService: ReadModelService
-)(implicit ec: ExecutionContext)
+  dateTimeSupplier: OffsetDateTimeSupplier
+)(implicit ec: ExecutionContext, readModelService: ReadModelService)
     extends AttributeApiService {
 
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  override def createAttribute(attributeSeed: AttributeSeed)(implicit
+  override def createCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE, INTERNAL_ROLE) {
-    val operationLabel: String = s"Creating attribute with name ${attributeSeed.name}"
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
+    val operationLabel: String = s"Creating certified attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] =
-      attributeRegistryManagementService.createAttribute(attributeSeed.toClient).map(_.toApi)
+    val result: Future[Attribute] = for {
+      requesterUuid <- getOrganizationIdFutureUUID(contexts)
+      tenant        <- tenantManagementService.getTenantById(requesterUuid)
+      _             <-
+        if (
+          tenant.features
+            .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
+            .exists(_.certifierId.trim().nonEmpty)
+        ) Future.unit
+        else Future.failed(TenantNotFound(requesterUuid))
+      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
+    } yield attribute.toApi
 
     onComplete(result) {
-      createAttributeResponse[Attribute](operationLabel) { res =>
-        logger.info(s"Attribute created with id ${res.id}")
-        createAttribute200(res)
+      createCertifiedAttributeResponse[Attribute](operationLabel) { res =>
+        logger.info(s"Certified attribute created with id ${res.id}")
+        createCertifiedAttribute200(res)
+      }
+    }
+  }
+
+  override def createDeclaredAttribute(attributeSeed: AttributeSeed)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
+    toEntityMarshallerProblem: ToEntityMarshaller[Problem]
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
+    val operationLabel: String = s"Creating declared attribute with name ${attributeSeed.name}"
+    logger.info(operationLabel)
+
+    val result: Future[Attribute] = attributeRegistryManagementService
+      .createAttribute(attributeSeed.toManagement(AttributeKind.DECLARED))
+      .map(_.toApi)
+
+    onComplete(result) {
+      createDeclaredAttributeResponse[Attribute](operationLabel) { res =>
+        logger.info(s"Declared attribute created with id ${res.id}")
+        createCertifiedAttribute200(res)
+      }
+    }
+  }
+
+  override def createVerifiedAttribute(attributeSeed: AttributeSeed)(implicit
+    contexts: Seq[(String, String)],
+    toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
+    toEntityMarshallerProblem: ToEntityMarshaller[Problem]
+  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
+    val operationLabel: String = s"Creating verified attribute with name ${attributeSeed.name}"
+    logger.info(operationLabel)
+
+    val result: Future[Attribute] = attributeRegistryManagementService
+      .createAttribute(attributeSeed.toManagement(AttributeKind.VERIFIED))
+      .map(_.toApi)
+
+    onComplete(result) {
+      createVerifiedAttributeResponse[Attribute](operationLabel) { res =>
+        logger.info(s"Declared attribute created with id ${res.id}")
+        createCertifiedAttribute200(res)
       }
     }
   }
@@ -120,7 +173,7 @@ final case class AttributeRegistryApiServiceImpl(
       kindsList <- parseArrayParameters(kinds)
         .traverse(AttributeKind.fromValue(_).map(PersistentAttributeKind.fromApi))
         .toFuture
-      result    <- ReadModelQueries.getAttributes(name, kindsList, Nil, offset, limit)(readModelService)
+      result    <- ReadModelRegistryAttributeQueries.getAttributes(name, kindsList, Nil, offset, limit)
     } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {
@@ -140,7 +193,7 @@ final case class AttributeRegistryApiServiceImpl(
       else
         for {
           uuids  <- ids.toList.distinct.traverse(_.toFutureUUID)
-          result <- ReadModelQueries.getAttributes(None, Nil, uuids, offset, limit)(readModelService)
+          result <- ReadModelRegistryAttributeQueries.getAttributes(None, Nil, uuids, offset, limit)
         } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {

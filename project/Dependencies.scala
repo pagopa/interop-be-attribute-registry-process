@@ -29,6 +29,8 @@ object Dependencies {
       namespace %% "interop-be-attribute-registry-management-client" % attributeRegistryManagementVersion
     lazy val attributeRegistryManagementModels =
       namespace %% "interop-be-attribute-registry-management-models" % attributeRegistryManagementVersion
+    lazy val tenantManagementModels =
+      namespace %% "interop-be-tenant-management-models" % tenantManagementVersion  
     lazy val commonsUtils = namespace %% "interop-commons-utils" % commonsVersion
     lazy val jwt          = namespace %% "interop-commons-jwt"   % commonsVersion
     lazy val commonsCqrs  = namespace %% "interop-commons-cqrs"  % commonsVersion
@@ -92,6 +94,7 @@ object Dependencies {
       mustache.mustache                        % Compile,
       pagopa.attributeRegistryManagementClient % Compile,
       pagopa.attributeRegistryManagementModels % Compile,
+      pagopa.tenantManagementModels            % Compile, 
       pagopa.commonsUtils                      % Compile,
       pagopa.commonsCqrs                       % Compile,
       pagopa.jwt                               % Compile,

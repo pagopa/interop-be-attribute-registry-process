@@ -2,8 +2,9 @@ package it.pagopa.interop.attributeregistryprocess.authz
 
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiMarshallerImpl._
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiServiceImpl
-import it.pagopa.interop.attributeregistryprocess.model.{AttributeKind, AttributeSeed}
+import it.pagopa.interop.attributeregistryprocess.model.AttributeSeed
 import it.pagopa.interop.attributeregistryprocess.util.FakeDependencies.{
+  FakeTenantManagement,
   FakeAttributeRegistryManagement,
   FakeReadModelService
 }
@@ -12,24 +13,39 @@ import it.pagopa.interop.commons.cqrs.service.ReadModelService
 
 import java.time.OffsetDateTime
 import java.util.UUID
+import it.pagopa.interop.attributeregistryprocess.model.CertifiedAttributeSeed
 
 class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
-  val fakeAttributeRegistryManagement: FakeAttributeRegistryManagement = FakeAttributeRegistryManagement()
-  val fakeReadModel: ReadModelService                                  = new FakeReadModelService
+  val fakeAttributeRegistryManagement: FakeAttributeRegistryManagement = new FakeAttributeRegistryManagement()
+  val fakeTenantManagement: FakeTenantManagement                       = new FakeTenantManagement()
+  implicit val fakeReadModel: ReadModelService                         = new FakeReadModelService
 
   val service: AttributeRegistryApiServiceImpl = AttributeRegistryApiServiceImpl(
     fakeAttributeRegistryManagement,
+    fakeTenantManagement,
     () => UUID.randomUUID(),
-    () => OffsetDateTime.now(),
-    fakeReadModel
+    () => OffsetDateTime.now()
   )
 
-  test("method authorization must succeed for createAttribute") {
-
-    val endpoint = AuthorizedRoutes.endpoints("createAttribute")
+  test("method authorization must succeed for createCertifiedAttribute") {
+    val endpoint = AuthorizedRoutes.endpoints("createCertifiedAttribute")
     val fakeSeed =
-      AttributeSeed(code = None, kind = AttributeKind.CERTIFIED, description = "???", origin = None, name = "???")
-    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.createAttribute(fakeSeed) })
+      CertifiedAttributeSeed(code = "code", description = "???", origin = "origin", name = "???")
+    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.createCertifiedAttribute(fakeSeed) })
+  }
+
+  test("method authorization must succeed for createDeclaredAttribute") {
+    val endpoint = AuthorizedRoutes.endpoints("createDeclaredAttribute")
+    val fakeSeed =
+      AttributeSeed(name = "???", description = "???")
+    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.createDeclaredAttribute(fakeSeed) })
+  }
+
+  test("method authorization must succeed for createVerifiedAttribute") {
+    val endpoint = AuthorizedRoutes.endpoints("createVerifiedAttribute")
+    val fakeSeed =
+      AttributeSeed(name = "???", description = "???")
+    validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.createVerifiedAttribute(fakeSeed) })
   }
 
   test("method authorization must succeed for getAttributeById") {

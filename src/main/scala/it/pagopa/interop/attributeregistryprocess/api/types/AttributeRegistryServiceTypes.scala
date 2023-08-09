@@ -2,7 +2,7 @@ package it.pagopa.interop.attributeregistryprocess.api.types
 
 import it.pagopa.interop.attributeregistrymanagement.client.{model => AttributeRegistryManagementDependency}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => AttributeModel}
-import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed}
+import it.pagopa.interop.attributeregistryprocess.model.{Attribute, AttributeKind, AttributeSeed, CertifiedAttributeSeed}
 
 object AttributeRegistryServiceTypes {
 
@@ -37,28 +37,26 @@ object AttributeRegistryServiceTypes {
     }
   }
 
-  implicit class AttributeSeedConverter(private val attributeSeed: AttributeSeed) extends AnyVal {
+  implicit class CertifiedAttributeSeedConverter(private val attributeSeed: CertifiedAttributeSeed) extends AnyVal {
 
-    def toClient: AttributeRegistryManagementDependency.AttributeSeed =
+    def toManagement: AttributeRegistryManagementDependency.AttributeSeed =
       AttributeRegistryManagementDependency.AttributeSeed(
-        code = attributeSeed.code,
-        kind = attributeSeed.kind.toClient,
+        code = Some(attributeSeed.code),
+        kind = AttributeRegistryManagementDependency.AttributeKind.CERTIFIED,
         description = attributeSeed.description,
-        origin = attributeSeed.origin,
+        origin = Some(attributeSeed.origin),
         name = attributeSeed.name
       )
   }
 
-  implicit class ManagementAttributeSeedConverter(
-    private val attributeSeed: AttributeRegistryManagementDependency.AttributeSeed
-  ) extends AnyVal {
+  implicit class AttributeSeedConverter(private val attributeSeed: AttributeSeed) extends AnyVal {
 
-    def toApi: AttributeSeed =
-      AttributeSeed(
-        code = attributeSeed.code,
-        kind = attributeSeed.kind.toApi,
+    def toManagement(kind: AttributeKind): AttributeRegistryManagementDependency.AttributeSeed =
+      AttributeRegistryManagementDependency.AttributeSeed(
+        code = None,
+        kind = kind.toClient,
         description = attributeSeed.description,
-        origin = attributeSeed.origin,
+        origin = None,
         name = attributeSeed.name
       )
   }

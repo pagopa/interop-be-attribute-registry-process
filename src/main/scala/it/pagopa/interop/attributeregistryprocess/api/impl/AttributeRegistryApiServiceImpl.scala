@@ -10,7 +10,7 @@ import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelRegistryAttributeQueries
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.TenantNotFound
+import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.OrganizationIsNotACertifier
 import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.tenantmanagement.model.tenant.PersistentTenantFeature
@@ -36,7 +36,7 @@ final case class AttributeRegistryApiServiceImpl(
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  private def checkTenant(tenantId: UUID): Future[Unit] = for {
+  private def checkOrganizationIsACertifier(tenantId: UUID): Future[Unit] = for {
     tenant <- tenantManagementService.getTenantById(tenantId)
     _      <-
       if (
@@ -44,7 +44,7 @@ final case class AttributeRegistryApiServiceImpl(
           .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
           .exists(_.certifierId.trim().nonEmpty)
       ) Future.unit
-      else Future.failed(TenantNotFound(tenantId))
+      else Future.failed(OrganizationIsNotACertifier(tenantId))
   } yield ()
 
   override def createInternalCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
@@ -57,12 +57,12 @@ final case class AttributeRegistryApiServiceImpl(
 
     val result: Future[Attribute] = for {
       requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      _             <- checkTenant(requesterUuid)
+      _             <- checkOrganizationIsACertifier(requesterUuid)
       attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
     } yield attribute.toApi
 
     onComplete(result) {
-      createCertifiedAttributeResponse[Attribute](operationLabel) { res =>
+      createInternalCertifiedAttributeResponse[Attribute](operationLabel) { res =>
         logger.info(s"Certified attribute created with id ${res.id}")
         createCertifiedAttribute200(res)
       }
@@ -79,7 +79,7 @@ final case class AttributeRegistryApiServiceImpl(
 
     val result: Future[Attribute] = for {
       requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      _             <- checkTenant(requesterUuid)
+      _             <- checkOrganizationIsACertifier(requesterUuid)
       attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
     } yield attribute.toApi
 

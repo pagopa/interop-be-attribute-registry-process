@@ -12,13 +12,22 @@ import scala.util.{Failure, Success, Try}
 object ResponseHandlers extends AkkaResponses {
   implicit val serviceCode: ServiceCode = ServiceCode("021")
 
+  def createInternalCertifiedAttributeResponse[T](logMessage: String)(
+    success: T => Route
+  )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
+    result match {
+      case Success(s)                               => success(s)
+      case Failure(ex: OrganizationIsNotACertifier) => forbidden(ex, logMessage)
+      case Failure(ex)                              => internalServerError(ex, logMessage)
+    }
+
   def createCertifiedAttributeResponse[T](logMessage: String)(
     success: T => Route
   )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
     result match {
-      case Success(s)                  => success(s)
-      case Failure(ex: TenantNotFound) => forbidden(ex, logMessage)
-      case Failure(ex)                 => internalServerError(ex, logMessage)
+      case Success(s)                               => success(s)
+      case Failure(ex: OrganizationIsNotACertifier) => forbidden(ex, logMessage)
+      case Failure(ex)                              => internalServerError(ex, logMessage)
     }
 
   def createDeclaredAttributeResponse[T](logMessage: String)(

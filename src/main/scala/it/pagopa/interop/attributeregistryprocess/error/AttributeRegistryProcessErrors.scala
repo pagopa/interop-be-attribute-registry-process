@@ -10,4 +10,7 @@ object AttributeRegistryProcessErrors {
 
   final case class TenantNotFound(tenantId: UUID)
       extends ComponentError("0002", s"Tenant ${tenantId.toString} not found")
+
+  final case class OrganizationIsNotACertifier(tenantId: UUID)
+      extends ComponentError("0003", s"Tenant ${tenantId.toString} is not a certifier")
 }

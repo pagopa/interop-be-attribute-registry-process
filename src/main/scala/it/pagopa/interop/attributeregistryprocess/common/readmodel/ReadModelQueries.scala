@@ -28,7 +28,7 @@ object ReadModelQueries {
     val idsFilter    = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
     val kindsFilter  = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
     val nameFilter   = name.map(Filters.regex("data.name", _, "i"))
-    val originFilter = origin.map(Filters.regex("data.origin", _, "i"))
+    val originFilter = origin.map(Filters.eq("data.origin", _))
     val query        =
       mapToVarArgs(idsFilter.toList ++ kindsFilter.toList ++ nameFilter.toList ++ originFilter.toList)(Filters.and)
         .getOrElse(Filters.empty())

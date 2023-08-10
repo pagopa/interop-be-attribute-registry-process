@@ -44,12 +44,12 @@ object AttributeRegistryServiceTypes {
 
   implicit class CertifiedAttributeSeedConverter(private val attributeSeed: CertifiedAttributeSeed) extends AnyVal {
 
-    def toManagement: AttributeRegistryManagementDependency.AttributeSeed =
+    def toManagement(origin: String): AttributeRegistryManagementDependency.AttributeSeed =
       AttributeRegistryManagementDependency.AttributeSeed(
         code = Some(attributeSeed.code),
         kind = AttributeRegistryManagementDependency.AttributeKind.CERTIFIED,
         description = attributeSeed.description,
-        origin = Some(attributeSeed.origin),
+        origin = Some(origin),
         name = attributeSeed.name
       )
   }

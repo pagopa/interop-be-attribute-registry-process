@@ -19,7 +19,7 @@ package object impl extends SprayJsonSupport with DefaultJsonProtocol {
 
   final val entityMarshallerProblem: ToEntityMarshaller[Problem]                    = sprayJsonMarshaller[Problem]
   implicit def attributeSeedFormat: RootJsonFormat[AttributeSeed]                   = jsonFormat2(AttributeSeed)
-  implicit def certifiedAttributeSeedFormat: RootJsonFormat[CertifiedAttributeSeed] = jsonFormat4(
+  implicit def certifiedAttributeSeedFormat: RootJsonFormat[CertifiedAttributeSeed] = jsonFormat3(
     CertifiedAttributeSeed
   )
   implicit def attributeProcessFormat: RootJsonFormat[AttributeProcess]             = jsonFormat7(AttributeProcess)

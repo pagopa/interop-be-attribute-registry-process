@@ -36,16 +36,15 @@ final case class AttributeRegistryApiServiceImpl(
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  private def checkOrganizationIsACertifier(tenantId: UUID): Future[Unit] = for {
+  private def getCertifier(tenantId: UUID): Future[String] = for {
     tenant <- tenantManagementService.getTenantById(tenantId)
-    _      <-
-      if (
-        tenant.features
-          .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
-          .exists(_.certifierId.trim().nonEmpty)
-      ) Future.unit
-      else Future.failed(OrganizationIsNotACertifier(tenantId))
-  } yield ()
+    certifier = tenant.features
+      .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
+      .map(_.certifierId)
+      .filter(_.trim().nonEmpty)
+      .headOption
+    result <- certifier.toFuture(OrganizationIsNotACertifier(tenantId))
+  } yield result
 
   override def createInternalCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
     contexts: Seq[(String, String)],
@@ -57,8 +56,8 @@ final case class AttributeRegistryApiServiceImpl(
 
     val result: Future[Attribute] = for {
       requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      _             <- checkOrganizationIsACertifier(requesterUuid)
-      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
+      certifier     <- getCertifier(requesterUuid)
+      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement(certifier))
     } yield attribute.toApi
 
     onComplete(result) {
@@ -79,8 +78,8 @@ final case class AttributeRegistryApiServiceImpl(
 
     val result: Future[Attribute] = for {
       requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      _             <- checkOrganizationIsACertifier(requesterUuid)
-      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement)
+      certifier     <- getCertifier(requesterUuid)
+      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement(certifier))
     } yield attribute.toApi
 
     onComplete(result) {

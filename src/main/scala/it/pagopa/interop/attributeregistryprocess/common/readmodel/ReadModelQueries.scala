@@ -18,17 +18,20 @@ import scala.concurrent.{ExecutionContext, Future}
 object ReadModelQueries {
   def getAttributes(
     name: Option[String],
+    origin: Option[String],
     kinds: List[PersistentAttributeKind],
     ids: List[UUID],
     offset: Int,
     limit: Int
   )(readModel: ReadModelService)(implicit ec: ExecutionContext): Future[PaginatedResult[PersistentAttribute]] = {
 
-    val idsFilter   = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
-    val kindsFilter = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
-    val nameFilter  = name.map(Filters.regex("data.name", _, "i"))
-    val query       = mapToVarArgs(idsFilter.toList ++ kindsFilter.toList ++ nameFilter.toList)(Filters.and)
-      .getOrElse(Filters.empty())
+    val idsFilter    = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
+    val kindsFilter  = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
+    val nameFilter   = name.map(Filters.regex("data.name", _, "i"))
+    val originFilter = origin.map(Filters.eq("data.origin", _))
+    val query        =
+      mapToVarArgs(idsFilter.toList ++ kindsFilter.toList ++ nameFilter.toList ++ originFilter.toList)(Filters.and)
+        .getOrElse(Filters.empty())
 
     for {
       attributes <- readModel.aggregate[PersistentAttribute](

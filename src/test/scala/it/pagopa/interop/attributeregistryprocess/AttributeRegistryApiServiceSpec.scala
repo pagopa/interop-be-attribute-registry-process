@@ -128,27 +128,23 @@ class AttributeRegistryApiServiceSpec
   "Internal certified attribute creation" should {
     "succeed" in {
 
-      val requesterUuid = UUID.randomUUID()
-
       implicit val context: Seq[(String, String)] =
-        Seq("bearer" -> bearerToken, USER_ROLES -> "internal", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
+        Seq("bearer" -> bearerToken, USER_ROLES -> "internal")
 
-      val attributeSeed: CertifiedAttributeSeed =
-        CertifiedAttributeSeed(name = "name", description = "description", code = "code")
-      val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.certifiedFeature))
+      val attributeSeed: InternalCertifiedAttributeSeed =
+        InternalCertifiedAttributeSeed(name = "name", description = "description", origin = "origin", code = "code")
 
       val expected: AttributeDependency.Attribute = AttributeDependency.Attribute(
         id = UUID.randomUUID(),
         code = Some("code"),
         kind = AttributeDependency.AttributeKind.CERTIFIED,
         description = "description",
-        origin = Some("certifier"),
+        origin = Some("origin"),
         name = "name",
         creationTime = SpecData.timestamp
       )
 
-      mockOrganizationRetrieve(requesterUuid, tenant)
-      mockAttributeCreate(attributeSeed.toManagement("certifier"), expected)
+      mockAttributeCreate(attributeSeed.toManagement, expected)
 
       Post() ~> service.createInternalCertifiedAttribute(attributeSeed) ~> check {
         status shouldEqual StatusCodes.OK

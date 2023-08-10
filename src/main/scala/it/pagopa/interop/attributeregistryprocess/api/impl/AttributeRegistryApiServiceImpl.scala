@@ -46,23 +46,21 @@ final case class AttributeRegistryApiServiceImpl(
     result <- certifier.toFuture(OrganizationIsNotACertifier(tenantId))
   } yield result
 
-  override def createInternalCertifiedAttribute(attributeSeed: CertifiedAttributeSeed)(implicit
+  override def createInternalCertifiedAttribute(attributeSeed: InternalCertifiedAttributeSeed)(implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
   ): Route = authorize(INTERNAL_ROLE) {
-    val operationLabel: String = s"Creating certified attribute with name ${attributeSeed.name}"
+    val operationLabel: String =
+      s"Creating certified attribute with origin ${attributeSeed.origin} and code ${attributeSeed.code} - Internal Request"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = for {
-      requesterUuid <- getOrganizationIdFutureUUID(contexts)
-      certifier     <- getCertifier(requesterUuid)
-      attribute     <- attributeRegistryManagementService.createAttribute(attributeSeed.toManagement(certifier))
-    } yield attribute.toApi
+    val result: Future[Attribute] =
+      attributeRegistryManagementService.createAttribute(attributeSeed.toManagement).map(_.toApi)
 
     onComplete(result) {
       createInternalCertifiedAttributeResponse[Attribute](operationLabel) { res =>
-        logger.info(s"Certified attribute created with id ${res.id}")
+        logger.info(s"Certified attribute created with id ${res.id} - Internal Request")
         createCertifiedAttribute200(res)
       }
     }
@@ -73,7 +71,7 @@ final case class AttributeRegistryApiServiceImpl(
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
   ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
-    val operationLabel: String = s"Creating certified attribute with name ${attributeSeed.name}"
+    val operationLabel: String = s"Creating certified attribute with code ${attributeSeed.code}"
     logger.info(operationLabel)
 
     val result: Future[Attribute] = for {

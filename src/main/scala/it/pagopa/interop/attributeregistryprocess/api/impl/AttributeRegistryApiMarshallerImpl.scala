@@ -7,8 +7,9 @@ import it.pagopa.interop.attributeregistryprocess.api.AttributeApiMarshaller
 import it.pagopa.interop.attributeregistryprocess.model.{
   Attribute,
   AttributeSeed,
-  CertifiedAttributeSeed,
   Attributes,
+  CertifiedAttributeSeed,
+  InternalCertifiedAttributeSeed,
   Problem
 }
 import spray.json.DefaultJsonProtocol
@@ -19,6 +20,10 @@ object AttributeRegistryApiMarshallerImpl
     with DefaultJsonProtocol {
   override implicit def fromEntityUnmarshallerAttributeSeed: FromEntityUnmarshaller[AttributeSeed] =
     sprayJsonUnmarshaller[AttributeSeed]
+
+  override implicit def fromEntityUnmarshallerInternalCertifiedAttributeSeed
+    : FromEntityUnmarshaller[InternalCertifiedAttributeSeed] =
+    sprayJsonUnmarshaller[InternalCertifiedAttributeSeed]
 
   override implicit def fromEntityUnmarshallerCertifiedAttributeSeed: FromEntityUnmarshaller[CertifiedAttributeSeed] =
     sprayJsonUnmarshaller[CertifiedAttributeSeed]

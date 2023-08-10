@@ -2,18 +2,21 @@ package it.pagopa.interop.attributeregistryprocess.authz
 
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiMarshallerImpl._
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiServiceImpl
-import it.pagopa.interop.attributeregistryprocess.model.AttributeSeed
+import it.pagopa.interop.attributeregistryprocess.model.{
+  AttributeSeed,
+  CertifiedAttributeSeed,
+  InternalCertifiedAttributeSeed
+}
 import it.pagopa.interop.attributeregistryprocess.util.FakeDependencies.{
-  FakeTenantManagement,
   FakeAttributeRegistryManagement,
-  FakeReadModelService
+  FakeReadModelService,
+  FakeTenantManagement
 }
 import it.pagopa.interop.attributeregistryprocess.util.{AuthorizedRoutes, ClusteredMUnitRouteTest}
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 
 import java.time.OffsetDateTime
 import java.util.UUID
-import it.pagopa.interop.attributeregistryprocess.model.CertifiedAttributeSeed
 
 class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
   val fakeAttributeRegistryManagement: FakeAttributeRegistryManagement = new FakeAttributeRegistryManagement()
@@ -30,7 +33,7 @@ class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
   test("method authorization must succeed for createInternalCertifiedAttribute") {
     val endpoint = AuthorizedRoutes.endpoints("createInternalCertifiedAttribute")
     val fakeSeed =
-      CertifiedAttributeSeed(code = "code", description = "???", name = "???")
+      InternalCertifiedAttributeSeed(origin = "origin", code = "code", description = "???", name = "???")
     validateAuthorization(
       endpoint,
       { implicit c: Seq[(String, String)] => service.createInternalCertifiedAttribute(fakeSeed) }

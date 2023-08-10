@@ -6,7 +6,8 @@ import it.pagopa.interop.attributeregistryprocess.model.{
   Attribute,
   AttributeKind,
   AttributeSeed,
-  CertifiedAttributeSeed
+  CertifiedAttributeSeed,
+  InternalCertifiedAttributeSeed
 }
 
 object AttributeRegistryServiceTypes {
@@ -50,6 +51,19 @@ object AttributeRegistryServiceTypes {
         kind = AttributeRegistryManagementDependency.AttributeKind.CERTIFIED,
         description = attributeSeed.description,
         origin = Some(origin),
+        name = attributeSeed.name
+      )
+  }
+
+  implicit class InternalCertifiedAttributeSeedConverter(private val attributeSeed: InternalCertifiedAttributeSeed)
+      extends AnyVal {
+
+    def toManagement: AttributeRegistryManagementDependency.AttributeSeed =
+      AttributeRegistryManagementDependency.AttributeSeed(
+        code = Some(attributeSeed.code),
+        kind = AttributeRegistryManagementDependency.AttributeKind.CERTIFIED,
+        description = attributeSeed.description,
+        origin = Some(attributeSeed.origin),
         name = attributeSeed.name
       )
   }

@@ -187,7 +187,8 @@ final case class AttributeRegistryApiServiceImpl(
     }
   }
 
-  override def getAttributes(name: Option[String], limit: Int, offset: Int, kinds: String)(implicit
+  override def getAttributes(name: Option[String], origin: Option[String], limit: Int, offset: Int, kinds: String)(
+    implicit
     contexts: Seq[(String, String)],
     toEntityMarshallerAttributes: ToEntityMarshaller[Attributes]
   ): Route = authorize(ADMIN_ROLE, API_ROLE, SECURITY_ROLE, M2M_ROLE, SUPPORT_ROLE) {
@@ -199,7 +200,7 @@ final case class AttributeRegistryApiServiceImpl(
       kindsList <- parseArrayParameters(kinds)
         .traverse(AttributeKind.fromValue(_).map(PersistentAttributeKind.fromApi))
         .toFuture
-      result    <- ReadModelRegistryAttributeQueries.getAttributes(name, kindsList, Nil, offset, limit)
+      result    <- ReadModelRegistryAttributeQueries.getAttributes(name, origin, kindsList, Nil, offset, limit)
     } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {
@@ -219,7 +220,7 @@ final case class AttributeRegistryApiServiceImpl(
       else
         for {
           uuids  <- ids.toList.distinct.traverse(_.toFutureUUID)
-          result <- ReadModelRegistryAttributeQueries.getAttributes(None, Nil, uuids, offset, limit)
+          result <- ReadModelRegistryAttributeQueries.getAttributes(None, None, Nil, uuids, offset, limit)
         } yield Attributes(results = result.results.map(_.toApi), totalCount = result.totalCount)
 
     onComplete(result) {

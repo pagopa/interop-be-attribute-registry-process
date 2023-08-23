@@ -1,7 +1,8 @@
 package it.pagopa.interop.attributeregistryprocess.util
 
 import it.pagopa.interop.attributeregistrymanagement.client.model.{Attribute, AttributeKind, AttributeSeed}
-import it.pagopa.interop.attributeregistryprocess.service.AttributeRegistryManagementService
+import it.pagopa.interop.tenantmanagement.model.tenant.{PersistentTenant, PersistentExternalId, PersistentTenantKind}
+import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import org.mongodb.scala.bson.conversions.Bson
 import spray.json.JsonReader
@@ -13,7 +14,28 @@ import scala.concurrent.{ExecutionContext, Future}
 object FakeDependencies {
   val verifiedAttributeId: UUID = UUID.randomUUID()
 
-  case class FakeAttributeRegistryManagement() extends AttributeRegistryManagementService {
+  class FakeTenantManagement() extends TenantManagementService {
+
+    override def getTenantById(
+      tenantId: UUID
+    )(implicit ec: ExecutionContext, readModel: ReadModelService): Future[PersistentTenant] =
+      Future.successful(
+        PersistentTenant(
+          id = UUID.randomUUID(),
+          kind = Some(PersistentTenantKind.PA),
+          selfcareId = Some(UUID.randomUUID().toString),
+          externalId = PersistentExternalId("Foo", "Bar"),
+          features = Nil,
+          attributes = Nil,
+          createdAt = OffsetDateTime.now(),
+          updatedAt = None,
+          mails = Nil,
+          name = "test_name"
+        )
+      )
+  }
+
+  class FakeAttributeRegistryManagement() extends AttributeRegistryManagementService {
 
     override def getAttributeById(id: UUID)(implicit contexts: Seq[(String, String)]): Future[Attribute] =
       Future.successful(

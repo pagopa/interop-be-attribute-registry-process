@@ -66,7 +66,9 @@ trait Dependencies {
     loggingEnabled = false
   )
 
-  val readModelService: ReadModelService = new MongoDbReadModelService(ApplicationConfiguration.readModelConfig)
+  implicit val readModelService: ReadModelService = new MongoDbReadModelService(
+    ApplicationConfiguration.readModelConfig
+  )
 
   def attributeRegistryApi(jwtReader: JWTReader, blockingEc: ExecutionContextExecutor)(implicit
     actorSystem: ActorSystem[_],
@@ -75,9 +77,9 @@ trait Dependencies {
     new AttributeApi(
       AttributeRegistryApiServiceImpl(
         attributeRegistryManagement(blockingEc),
+        TenantManagementServiceImpl,
         uuidSupplier,
-        dateTimeSupplier,
-        readModelService
+        dateTimeSupplier
       ),
       AttributeRegistryApiMarshallerImpl,
       jwtReader.OAuth2JWTValidatorAsContexts

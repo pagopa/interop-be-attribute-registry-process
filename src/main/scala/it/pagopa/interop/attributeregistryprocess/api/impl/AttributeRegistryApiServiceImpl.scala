@@ -10,7 +10,10 @@ import it.pagopa.interop.attributeregistryprocess.api.AttributeApiService
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelRegistryAttributeQueries
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
-import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.OrganizationIsNotACertifier
+import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.{
+  OrganizationIsNotACertifier,
+  OriginIsNotCompliant
+}
 import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.attributeregistryprocess.service._
 import it.pagopa.interop.tenantmanagement.model.tenant.PersistentTenantFeature
@@ -35,6 +38,8 @@ final case class AttributeRegistryApiServiceImpl(
 
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
+
+  val IPA = "IPA"
 
   private def getCertifier(tenantId: UUID): Future[String] = for {
     tenant <- tenantManagementService.getTenantById(tenantId)
@@ -96,9 +101,13 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Creating declared attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = attributeRegistryManagementService
-      .createAttribute(attributeSeed.toManagement(AttributeKind.DECLARED))
-      .map(_.toApi)
+    val result: Future[Attribute] = for {
+      origin    <- getExternalIdOriginFuture(contexts)
+      _         <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+      attribute <- attributeRegistryManagementService.createAttribute(
+        attributeSeed.toManagement(AttributeKind.DECLARED)
+      )
+    } yield attribute.toApi
 
     onComplete(result) {
       createDeclaredAttributeResponse[Attribute](operationLabel) { res =>
@@ -116,9 +125,13 @@ final case class AttributeRegistryApiServiceImpl(
     val operationLabel: String = s"Creating verified attribute with name ${attributeSeed.name}"
     logger.info(operationLabel)
 
-    val result: Future[Attribute] = attributeRegistryManagementService
-      .createAttribute(attributeSeed.toManagement(AttributeKind.VERIFIED))
-      .map(_.toApi)
+    val result: Future[Attribute] = for {
+      origin    <- getExternalIdOriginFuture(contexts)
+      _         <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+      attribute <- attributeRegistryManagementService.createAttribute(
+        attributeSeed.toManagement(AttributeKind.VERIFIED)
+      )
+    } yield attribute.toApi
 
     onComplete(result) {
       createVerifiedAttributeResponse[Attribute](operationLabel) { res =>

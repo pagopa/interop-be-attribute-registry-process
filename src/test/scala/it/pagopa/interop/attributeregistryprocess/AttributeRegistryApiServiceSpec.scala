@@ -6,7 +6,12 @@ import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpecLike
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import it.pagopa.interop.commons.utils.{ORGANIZATION_ID_CLAIM, USER_ROLES}
+import it.pagopa.interop.commons.utils.{
+  ORGANIZATION_EXTERNAL_ID_ORIGIN,
+  ORGANIZATION_EXTERNAL_ID_VALUE,
+  ORGANIZATION_ID_CLAIM,
+  USER_ROLES
+}
 import it.pagopa.interop.attributeregistryprocess.api.types.AttributeRegistryServiceTypes._
 import it.pagopa.interop.attributeregistryprocess.api.impl.AttributeRegistryApiMarshallerImpl._
 import it.pagopa.interop.attributeregistrymanagement.client.{model => AttributeDependency}
@@ -73,7 +78,13 @@ class AttributeRegistryApiServiceSpec
       val requesterUuid = UUID.randomUUID()
 
       implicit val context: Seq[(String, String)] =
-        Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
+        Seq(
+          "bearer"                        -> bearerToken,
+          USER_ROLES                      -> "admin",
+          ORGANIZATION_ID_CLAIM           -> requesterUuid.toString,
+          ORGANIZATION_EXTERNAL_ID_ORIGIN -> "IPA",
+          ORGANIZATION_EXTERNAL_ID_VALUE  -> "12345"
+        )
 
       val attributeSeed: AttributeSeed =
         AttributeSeed(name = "name", description = "description")
@@ -102,7 +113,13 @@ class AttributeRegistryApiServiceSpec
       val requesterUuid = UUID.randomUUID()
 
       implicit val context: Seq[(String, String)] =
-        Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
+        Seq(
+          "bearer"                        -> bearerToken,
+          USER_ROLES                      -> "admin",
+          ORGANIZATION_ID_CLAIM           -> requesterUuid.toString,
+          ORGANIZATION_EXTERNAL_ID_ORIGIN -> "IPA",
+          ORGANIZATION_EXTERNAL_ID_VALUE  -> "12345"
+        )
 
       val attributeSeed: AttributeSeed =
         AttributeSeed(name = "name", description = "description")

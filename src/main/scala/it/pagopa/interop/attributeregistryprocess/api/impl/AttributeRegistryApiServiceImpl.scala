@@ -46,8 +46,7 @@ final case class AttributeRegistryApiServiceImpl(
     certifier = tenant.features
       .collect { case f: PersistentTenantFeature.PersistentCertifier => f }
       .map(_.certifierId)
-      .filter(_.trim().nonEmpty)
-      .headOption
+      .find(_.trim().nonEmpty)
     result <- certifier.toFuture(OrganizationIsNotACertifier(tenantId))
   } yield result
 
@@ -102,8 +101,7 @@ final case class AttributeRegistryApiServiceImpl(
     logger.info(operationLabel)
 
     val result: Future[Attribute] = for {
-      origin    <- getExternalIdOriginFuture(contexts)
-      _         <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+      _         <- checkIPAOrganization(contexts)
       attribute <- attributeRegistryManagementService.createAttribute(
         attributeSeed.toManagement(AttributeKind.DECLARED)
       )
@@ -126,8 +124,7 @@ final case class AttributeRegistryApiServiceImpl(
     logger.info(operationLabel)
 
     val result: Future[Attribute] = for {
-      origin    <- getExternalIdOriginFuture(contexts)
-      _         <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+      _         <- checkIPAOrganization(contexts)
       attribute <- attributeRegistryManagementService.createAttribute(
         attributeSeed.toManagement(AttributeKind.VERIFIED)
       )
@@ -139,6 +136,13 @@ final case class AttributeRegistryApiServiceImpl(
         createCertifiedAttribute200(res)
       }
     }
+  }
+
+  private def checkIPAOrganization(contexts: Seq[(String, String)]): Future[Unit] = {
+    for {
+      origin <- getExternalIdOriginFuture(contexts)
+      _      <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+    } yield ()
   }
 
   override def getAttributeById(attributeId: String)(implicit

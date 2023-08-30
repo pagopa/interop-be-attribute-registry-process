@@ -34,26 +34,18 @@ object ResponseHandlers extends AkkaResponses {
     success: T => Route
   )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
     result match {
-      case Success(s)  => success(s)
-      case Failure(ex) => internalServerError(ex, logMessage)
+      case Success(s)                        => success(s)
+      case Failure(ex: OriginIsNotCompliant) => forbidden(ex, logMessage)
+      case Failure(ex)                       => internalServerError(ex, logMessage)
     }
 
   def createVerifiedAttributeResponse[T](logMessage: String)(
     success: T => Route
   )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
     result match {
-      case Success(s)  => success(s)
-      case Failure(ex) => internalServerError(ex, logMessage)
-    }
-
-  def deleteAttributeResponse[T](logMessage: String)(
-    success: T => Route
-  )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
-    result match {
-      case Success(s)                             => success(s)
-      case Failure(ex: OperationForbidden.type)   => forbidden(ex, logMessage)
-      case Failure(ex: RegistryAttributeNotFound) => notFound(ex, logMessage)
-      case Failure(ex)                            => internalServerError(ex, logMessage)
+      case Success(s)                        => success(s)
+      case Failure(ex: OriginIsNotCompliant) => forbidden(ex, logMessage)
+      case Failure(ex)                       => internalServerError(ex, logMessage)
     }
 
   def getAttributeByIdResponse[T](logMessage: String)(
@@ -87,15 +79,6 @@ object ResponseHandlers extends AkkaResponses {
     }
 
   def getAttributesResponse[T](logMessage: String)(
-    success: T => Route
-  )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
-    result match {
-      case Success(s)                           => success(s)
-      case Failure(ex: OperationForbidden.type) => forbidden(ex, logMessage)
-      case Failure(ex)                          => internalServerError(ex, logMessage)
-    }
-
-  def getBulkedAttributesResponse[T](logMessage: String)(
     success: T => Route
   )(result: Try[T])(implicit contexts: Seq[(String, String)], logger: LoggerTakingImplicit[ContextFieldsToLog]): Route =
     result match {

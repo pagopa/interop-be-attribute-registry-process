@@ -13,4 +13,7 @@ object AttributeRegistryProcessErrors {
 
   final case class OrganizationIsNotACertifier(tenantId: UUID)
       extends ComponentError("0003", s"Tenant ${tenantId.toString} is not a certifier")
+
+  final case class OriginIsNotCompliant(origin: String)
+      extends ComponentError("0004", s"Requester has not origin: $origin")
 }

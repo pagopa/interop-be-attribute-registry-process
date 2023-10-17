@@ -27,11 +27,9 @@ final case class AttributeRegistryManagementServiceImpl(
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
   override def getAttributeById(id: UUID)(implicit contexts: Seq[(String, String)]): Future[Attribute] = withHeaders {
-    (bearerToken, correlationId, ip) =>
+    (bearerToken, correlationId) =>
       val request: ApiRequest[Attribute] =
-        api.getAttributeById(xCorrelationId = correlationId, attributeId = id, xForwardedFor = ip)(
-          BearerToken(bearerToken)
-        )
+        api.getAttributeById(xCorrelationId = correlationId, attributeId = id)(BearerToken(bearerToken))
       invoker.invoke(request, s"Retrieving Attribute $id").recoverWith {
         case err: ApiError[_] if err.code == 404 =>
           Future.failed(RegistryAttributeNotFound(id.toString))
@@ -40,20 +38,16 @@ final case class AttributeRegistryManagementServiceImpl(
 
   override def createAttribute(
     attributeSeed: AttributeSeed
-  )(implicit contexts: Seq[(String, String)]): Future[Attribute] = withHeaders { (bearerToken, correlationId, ip) =>
+  )(implicit contexts: Seq[(String, String)]): Future[Attribute] = withHeaders { (bearerToken, correlationId) =>
     val request: ApiRequest[Attribute] =
-      api.createAttribute(xCorrelationId = correlationId, attributeSeed = attributeSeed, xForwardedFor = ip)(
-        BearerToken(bearerToken)
-      )
+      api.createAttribute(xCorrelationId = correlationId, attributeSeed = attributeSeed)(BearerToken(bearerToken))
     invoker.invoke(request, s"Attribute creation with name ${attributeSeed.name}")
   }
 
   override def getAttributeByName(name: String)(implicit contexts: Seq[(String, String)]): Future[Attribute] =
-    withHeaders { (bearerToken, correlationId, ip) =>
+    withHeaders { (bearerToken, correlationId) =>
       val request: ApiRequest[Attribute] =
-        api.getAttributeByName(xCorrelationId = correlationId, name = name, xForwardedFor = ip)(
-          BearerToken(bearerToken)
-        )
+        api.getAttributeByName(xCorrelationId = correlationId, name = name)(BearerToken(bearerToken))
       invoker.invoke(request, s"Retrieving Attribute $name").recoverWith {
         case err: ApiError[_] if err.code == 404 =>
           Future.failed(RegistryAttributeNotFound(name))
@@ -62,9 +56,9 @@ final case class AttributeRegistryManagementServiceImpl(
 
   override def getAttributeByOriginAndCode(origin: String, code: String)(implicit
     contexts: Seq[(String, String)]
-  ): Future[Attribute] = withHeaders { (bearerToken, correlationId, ip) =>
+  ): Future[Attribute] = withHeaders { (bearerToken, correlationId) =>
     val request: ApiRequest[Attribute] =
-      api.getAttributeByOriginAndCode(xCorrelationId = correlationId, origin = origin, code = code, xForwardedFor = ip)(
+      api.getAttributeByOriginAndCode(xCorrelationId = correlationId, origin = origin, code = code)(
         BearerToken(bearerToken)
       )
     invoker.invoke(request, s"Retrieving Attribute $origin/$code").recoverWith {

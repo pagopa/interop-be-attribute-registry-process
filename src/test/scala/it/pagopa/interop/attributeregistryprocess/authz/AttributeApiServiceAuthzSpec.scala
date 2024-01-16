@@ -43,7 +43,7 @@ class AttributeApiServiceAuthzSpec extends ClusteredMUnitRouteTest {
   test("method authorization must succeed for createCertifiedAttribute") {
     val endpoint = AuthorizedRoutes.endpoints("createCertifiedAttribute")
     val fakeSeed =
-      CertifiedAttributeSeed(code = "code", description = "???", name = "???")
+      CertifiedAttributeSeed(description = "???", name = "???")
     validateAuthorization(endpoint, { implicit c: Seq[(String, String)] => service.createCertifiedAttribute(fakeSeed) })
   }
 

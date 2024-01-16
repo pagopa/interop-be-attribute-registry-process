@@ -2,6 +2,7 @@ package it.pagopa.interop.attributeregistryprocess.api.types
 
 import it.pagopa.interop.attributeregistrymanagement.client.{model => AttributeRegistryManagementDependency}
 import it.pagopa.interop.attributeregistrymanagement.model.persistence.{attribute => AttributeModel}
+import it.pagopa.interop.commons.utils.Digester.toSha256
 import it.pagopa.interop.attributeregistryprocess.model.{
   Attribute,
   AttributeKind,
@@ -47,7 +48,7 @@ object AttributeRegistryServiceTypes {
 
     def toManagement(origin: String): AttributeRegistryManagementDependency.AttributeSeed =
       AttributeRegistryManagementDependency.AttributeSeed(
-        code = Some(attributeSeed.code),
+        code = Some(toSha256(attributeSeed.name.getBytes())),
         kind = AttributeRegistryManagementDependency.AttributeKind.CERTIFIED,
         description = attributeSeed.description,
         origin = Some(origin),

@@ -33,7 +33,7 @@ class AttributeRegistryApiServiceSpec
         Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
 
       val attributeSeed: CertifiedAttributeSeed =
-        CertifiedAttributeSeed(name = "name", description = "description", code = "code")
+        CertifiedAttributeSeed(name = "name", description = "description")
       val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.certifiedFeature))
 
       val expected: AttributeDependency.Attribute = AttributeDependency.Attribute(
@@ -62,7 +62,7 @@ class AttributeRegistryApiServiceSpec
         Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
 
       val attributeSeed: CertifiedAttributeSeed =
-        CertifiedAttributeSeed(name = "name", description = "description", code = "code")
+        CertifiedAttributeSeed(name = "name", description = "description")
       val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.emptyCertifiedFeature))
 
       mockOrganizationRetrieve(requesterUuid, tenant)
@@ -176,7 +176,7 @@ class AttributeRegistryApiServiceSpec
         Seq("bearer" -> bearerToken, USER_ROLES -> "admin", ORGANIZATION_ID_CLAIM -> requesterUuid.toString)
 
       val attributeSeed: CertifiedAttributeSeed =
-        CertifiedAttributeSeed(name = "name", description = "description", code = "code")
+        CertifiedAttributeSeed(name = "name", description = "description")
       val tenant = SpecData.tenant.copy(id = requesterUuid, features = List(SpecData.emptyCertifiedFeature))
 
       mockOrganizationRetrieve(requesterUuid, tenant)

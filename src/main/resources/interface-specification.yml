@@ -501,15 +501,9 @@ components:
           type: string
           minLength: 1
           maxLength: 500
-        code:
-          type: string
-          minLength: 1
-          maxLength: 64
-          description: identifies the unique code of this attribute on the registry
       required:
         - description
         - name
-        - code
     InternalCertifiedAttributeSeed:
       title: AttributeSeed
       type: object

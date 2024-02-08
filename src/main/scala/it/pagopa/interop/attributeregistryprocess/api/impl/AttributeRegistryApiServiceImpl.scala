@@ -74,7 +74,7 @@ final case class AttributeRegistryApiServiceImpl(
     contexts: Seq[(String, String)],
     toEntityMarshallerAttribute: ToEntityMarshaller[Attribute],
     toEntityMarshallerProblem: ToEntityMarshaller[Problem]
-  ): Route = authorize(ADMIN_ROLE, API_ROLE, M2M_ROLE) {
+  ): Route = authorize(ADMIN_ROLE, M2M_ROLE) {
     val operationLabel: String = s"Creating certified attribute with code ${attributeSeed.code}"
     logger.info(operationLabel)
 

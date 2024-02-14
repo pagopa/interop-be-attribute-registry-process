@@ -27,7 +27,7 @@ object ReadModelRegistryAttributeQueries extends ReadModelQuery {
 
     val idsFilter    = mapToVarArgs(ids.map(id => Filters.eq("data.id", id.toString)))(Filters.or)
     val kindsFilter  = mapToVarArgs(kinds.map(k => Filters.eq("data.kind", k.toString)))(Filters.or)
-    val nameFilter   = name.map(safeRegex("data.name", _, "i"))
+    val nameFilter   = name.map(n => Filters.regex("data.name", escape(n), "i"))
     val originFilter = origin.map(Filters.eq("data.origin", _))
     val query        =
       mapToVarArgs(idsFilter.toList ++ kindsFilter.toList ++ nameFilter.toList ++ originFilter.toList)(Filters.and)

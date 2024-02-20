@@ -40,8 +40,6 @@ final case class AttributeRegistryApiServiceImpl(
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
 
-  val IPA = "IPA"
-
   private def getCertifier(tenantId: UUID): Future[String] = for {
     tenant <- tenantManagementService.getTenantById(tenantId)
     certifier = tenant.features

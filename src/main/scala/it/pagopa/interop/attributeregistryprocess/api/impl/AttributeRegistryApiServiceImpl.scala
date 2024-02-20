@@ -21,13 +21,13 @@ import it.pagopa.interop.commons.cqrs.service.ReadModelService
 import it.pagopa.interop.commons.jwt._
 import it.pagopa.interop.commons.logging.{CanLogContextFields, ContextFieldsToLog}
 import it.pagopa.interop.commons.utils.AkkaUtils._
-import it.pagopa.interop.commons.utils.PRODUCER_ALLOWED_ORIGINS
 import it.pagopa.interop.commons.utils.OpenapiUtils.parseArrayParameters
 import it.pagopa.interop.commons.utils.TypeConversions._
 import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupplier}
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
+import it.pagopa.interop.attributeregistryprocess.common.system.ApplicationConfiguration
 
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
@@ -140,7 +140,9 @@ final case class AttributeRegistryApiServiceImpl(
   private def checkIPAOrganization(contexts: Seq[(String, String)]): Future[Unit] = {
     for {
       origin <- getExternalIdOriginFuture(contexts)
-      _ <- if (PRODUCER_ALLOWED_ORIGINS.contains(origin)) Future.unit else Future.failed(OriginIsNotAllowed(origin))
+      _      <-
+        if (ApplicationConfiguration.producerAllowedOrigins.contains(origin)) Future.unit
+        else Future.failed(OriginIsNotAllowed(origin))
     } yield ()
   }
 

@@ -6,8 +6,10 @@ import it.pagopa.interop.commons.cqrs.model.ReadModelConfig
 object ApplicationConfiguration {
   val config: Config = ConfigFactory.load()
 
-  val serverPort: Int          = config.getInt("attribute-registry-process.port")
-  val jwtAudience: Set[String] =
+  val serverPort: Int                     = config.getInt("attribute-registry-process.port")
+  val producerAllowedOrigins: Set[String] =
+    config.getString("attribute-registry-process.producer-allowed-origins").split(",").toSet.filter(_.nonEmpty)
+  val jwtAudience: Set[String]            =
     config.getString("attribute-registry-process.jwt.audience").split(",").toSet.filter(_.nonEmpty)
 
   val attributeRegistryManagementURL: String =

@@ -12,7 +12,7 @@ import it.pagopa.interop.attributeregistryprocess.common.readmodel.ReadModelRegi
 import it.pagopa.interop.attributeregistryprocess.error.ResponseHandlers._
 import it.pagopa.interop.attributeregistryprocess.error.AttributeRegistryProcessErrors.{
   OrganizationIsNotACertifier,
-  OriginIsNotCompliant
+  OriginIsNotAllowed
 }
 import it.pagopa.interop.attributeregistryprocess.model._
 import it.pagopa.interop.attributeregistryprocess.service._
@@ -27,6 +27,7 @@ import it.pagopa.interop.commons.utils.service.{OffsetDateTimeSupplier, UUIDSupp
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID
+import it.pagopa.interop.attributeregistryprocess.common.system.ApplicationConfiguration
 
 final case class AttributeRegistryApiServiceImpl(
   attributeRegistryManagementService: AttributeRegistryManagementService,
@@ -38,8 +39,6 @@ final case class AttributeRegistryApiServiceImpl(
 
   private implicit val logger: LoggerTakingImplicit[ContextFieldsToLog] =
     Logger.takingImplicit[ContextFieldsToLog](this.getClass)
-
-  val IPA = "IPA"
 
   private def getCertifier(tenantId: UUID): Future[String] = for {
     tenant <- tenantManagementService.getTenantById(tenantId)
@@ -141,7 +140,9 @@ final case class AttributeRegistryApiServiceImpl(
   private def checkIPAOrganization(contexts: Seq[(String, String)]): Future[Unit] = {
     for {
       origin <- getExternalIdOriginFuture(contexts)
-      _      <- if (origin == IPA) Future.unit else Future.failed(OriginIsNotCompliant(IPA))
+      _      <-
+        if (ApplicationConfiguration.producerAllowedOrigins.contains(origin)) Future.unit
+        else Future.failed(OriginIsNotAllowed(origin))
     } yield ()
   }
 
